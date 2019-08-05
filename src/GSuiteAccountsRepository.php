@@ -9,6 +9,7 @@ class GSuiteAccountsRepository
 {
     /**
      * GSuite Directory Accounts Client
+     * \Google_Service_Directory_Resource_Users
      */
     protected $accounts_client;
 
@@ -49,7 +50,7 @@ class GSuiteAccountsRepository
         try {
             $status = $this->accounts_client->delete($email);
         } catch (\Exception $e) {
-            throw new Exception("Error Processing Request", 1);
+            throw new Exception("Error deleting account with email: {$email}.", 1);
         }
 
         return $status;
@@ -64,7 +65,7 @@ class GSuiteAccountsRepository
         try {
             $account = $this->accounts_client->get($email, ['projection' => 'full']);
         } catch (\Exception $e) {
-            throw new Exception("Error Processing Request", 1);
+            throw new Exception("Error retriving account with email: {$email}", 1);
         }
 
         return $account;
