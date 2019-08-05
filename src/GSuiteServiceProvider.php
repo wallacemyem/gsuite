@@ -33,10 +33,6 @@ class GSuiteServiceProvider extends ServiceProvider
         $this->app->singleton(GSuiteDirectory::class, function () {
             return new GSuiteDirectory;
         });
-
-        $this->app->singleton(GSuiteAccount::class, function () {
-            return new GSuiteAccount;
-        });
     }
 
     /**
@@ -46,6 +42,6 @@ class GSuiteServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [GSuite::class, GSuiteDirectory::class, GSuiteAccount::class];
+        return [GSuite::class, GSuiteDirectory::class];
     }
 }
