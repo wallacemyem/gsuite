@@ -8,9 +8,9 @@ use Illuminate\Support\Str;
 class GSuiteAccountsRepository
 {
     /**
-     * Google Directory Client
+     * GSuite Directory Accounts Client
      */
-    protected $directory_client;
+    protected $accounts_client;
 
     /**
      * GSuite account user name max length
@@ -22,20 +22,20 @@ class GSuiteAccountsRepository
      * @return Wyattcast44\GSuite\GSuiteAccountsRepository
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/
      */
-    public function __construct(GSuite $gsuite)
+    public function __construct(GSuiteDirectory $directory_client)
     {
-        $this->directory_client = $this->setDirectoryClient($gsuite);
+        $this->setAccountsClient($directory_client);
 
         return $this;
     }
 
     /**
-     * Set the GSuite Directory client
+     * Set the GSuite Directory Account client
      * @return Wyattcast44\GSuite\GSuiteAccountsRepository
      */
-    protected function setDirectoryClient(GSuite $gsuite)
+    protected function setAccountsClient(GSuiteDirectory $directory_client)
     {
-        $this->directory_client = new \Google_Service_Directory($gsuite);
+        $this->accounts_client = $directory_client->users;
 
         return $this;
     }
@@ -47,7 +47,7 @@ class GSuiteAccountsRepository
     public function delete(string $email)
     {
         try {
-            $status = $this->directory_client->users->delete($email);
+            $status = $this->accounts_client->delete($email);
         } catch (\Exception $e) {
             throw new Exception("Error Processing Request", 1);
         }
@@ -62,7 +62,7 @@ class GSuiteAccountsRepository
     public function get(string $email)
     {
         try {
-            $account = $this->directory_client->users->get($email, ['projection' => 'full']);
+            $account = $this->accounts_client->get($email, ['projection' => 'full']);
         } catch (\Exception $e) {
             throw new Exception("Error Processing Request", 1);
         }
@@ -126,7 +126,7 @@ class GSuiteAccountsRepository
          * Attempt to actually create the new GSuite account
          */
         try {
-            $account = $this->directory_client->users->insert($google_user);
+            $account = $this->accounts_client->insert($google_user);
         } catch (\Exception $e) {
             throw new \Exception("Error Processing Request", 1);
         }
@@ -139,13 +139,8 @@ class GSuiteAccountsRepository
      */
     public function list()
     {
-        if (Cache::has('gsuite:accounts')) {
-            $accounts = Cache::get('gsuite:accounts', collect());
-        } else {
-            $accounts = collect($this->directory_client->users->listUsers(['domain' => config('gsuite.domain')])->users);
+        $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
 
-            Cache::put('gsuite:accounts', $accounts, now()->addMinutes(30));
-        }
         return $accounts;
     }
 
