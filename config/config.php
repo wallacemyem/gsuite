@@ -8,7 +8,8 @@ return [
     |--------------------------------------------------------------------------
     | The email of the account to impersonate, account should have neccessary
     | permissions for the scopes requested
-    | @link https://developers.google.com/admin-sdk/directory/v1/reference/
+    | @link https://developers.google.com/admin-sdk/directory/v1/guides/delegation
+    |
     */
     'subject' => env('GOOGLE_SERVICE_ACCOUNT'),
 
@@ -19,6 +20,7 @@ return [
     | This should be the full path to the credentials file supplied
     | by google when creating a service account. Ensure you add
     | your credentials file to your .gitignore file
+    |
     */
     'credentials_path' => storage_path('your-credentials.json'),
 
@@ -27,7 +29,8 @@ return [
     | Scopes
     |--------------------------------------------------------------------------
     | The scopes requested
-    | @link https://developers.google.com/admin-sdk/directory/v1/reference/
+    | @link https://developers.google.com/admin-sdk/directory/v1/guides/authorizing
+    |
     */
     'scopes' => [
         'https://www.googleapis.com/auth/admin.directory.user',
@@ -38,8 +41,8 @@ return [
     |--------------------------------------------------------------------------
     | Domain
     |--------------------------------------------------------------------------
-    | Your gsuite domain
-    | @link https://developers.google.com/admin-sdk/directory/v1/reference/
+    | Your GSuite domain
+    |
     */
     'domain' => 'business.com',
     
@@ -49,6 +52,7 @@ return [
     | Cache
     |--------------------------------------------------------------------------
     | Caching options
+    |
     */
     'cache' => [
         
