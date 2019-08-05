@@ -15,11 +15,12 @@ class GSuiteAccountsRepository
 
     /**
      * GSuite account user name max length
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
      */
     protected static $maxNameLength = 60;
 
     /**
-     * Boostrap the Directory Service
+     * Boostrap the repo service
      * @return Wyattcast44\GSuite\GSuiteAccountsRepository
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/
      */
@@ -44,6 +45,7 @@ class GSuiteAccountsRepository
     /**
      * Delete a GSuite Account
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/delete
+     * @return bool
      */
     public function delete(string $email)
     {
@@ -61,11 +63,13 @@ class GSuiteAccountsRepository
     /**
      * Fetch a GSuite account by email
      * @return \Google_Service_Directory_User
+     * @param $projection | Options: basic, custom, full | Default: full
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/get
      */
-    public function get(string $email)
+    public function get(string $email, string $projection = 'full')
     {
         try {
-            $account = $this->accounts_client->get($email, ['projection' => 'full']);
+            $account = $this->accounts_client->get($email, ['projection' => $projection]);
         } catch (\Exception $e) {
             throw new Exception("Error retriving account with email: {$email}", 1);
         }
@@ -75,9 +79,13 @@ class GSuiteAccountsRepository
 
     /**
      * Create a new GSuite account
-     * https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
+     * @param array $name | Should contain: first_name, last_name
+     * @param string $email | The desired email address for the new account, ex joe@email.com
+     * @param string $password | The desired default password
+     * @return \GoogleServiceUser
      */
-    public function insert(array $name, string $email, string $password = '')
+    public function insert(array $name, string $email, string $password)
     {
         /**
          * Ensure $name has proper keys
@@ -98,13 +106,6 @@ class GSuiteAccountsRepository
          */
         if (!$this->checkEmailAvailability($email)) {
             throw new Exception("Email address already taken.", 1);
-        }
-
-        /**
-         * If no password is supplied, create random password
-         */
-        if ($password === '') {
-            $password = Str::random(16);
         }
 
         /**
@@ -140,12 +141,23 @@ class GSuiteAccountsRepository
     }
 
     /**
-     * Get GSuite accounts in your domain
+     * List the GSuite accounts in your domain
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/list
      */
     public function list()
     {
-        $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
+        if (! $this->shouldCache()) {
+            $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
 
+            return $accounts;
+        }
+
+        if (Cache::has(config('gsuite.cache.accounts.key'))) {
+            $accounts = Cache::get('gsuite.cache.accounts.key');
+        } else {
+            $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
+        }
+    
         return $accounts;
     }
 
