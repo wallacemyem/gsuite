@@ -1,0 +1,54 @@
+{
+    "name": "wyattcast44/gsuite",
+    "description": "Helps manage your GSuite Account from your Laravel application",
+    "keywords": [
+        "wyattcast44",
+        "gsuite"
+    ],
+    "homepage": "https://github.com/wyattcast44/gsuite",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Wyatt",
+            "email": "wyatt.castaneda@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "google/apiclient": "^2.2",
+        "illuminate/support": "5.8.*"
+    },
+    "require-dev": {
+        "orchestra/testbench": "3.8.*",
+        "phpunit/phpunit": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wyattcast44\\Gsuite\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Wyattcast44\\Gsuite\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Wyattcast44\\Gsuite\\GsuiteServiceProvider"
+            ],
+            "aliases": {
+                "Gsuite": "Wyattcast44\\Gsuite\\GsuiteFacade"
+            }
+        }
+    }
+}
