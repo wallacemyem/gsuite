@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Arr;
 use Wyattcast44\GSuite\GSuiteAccountsRepository;
 
 class GSuiteAccount
@@ -29,7 +28,7 @@ class GSuiteAccount
     }
 
     /**
-     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users
+     * Create a new GSuite account
      */
     public function create(array $name, string $email, string $password = '')
     {
