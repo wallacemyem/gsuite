@@ -30,7 +30,6 @@ class GSuite
             putenv('GOOGLE_APPLICATION_CREDENTIALS=' . config('gsuite.credentials_path'));
         }
 
-        // Set and configure the client
         $this->google_client = tap(new \Google_Client, function ($google_client) {
             $google_client->useApplicationDefaultCredentials();
             $google_client->setSubject(config('gsuite.subject'));
