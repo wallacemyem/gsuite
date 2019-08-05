@@ -22,7 +22,7 @@ class GSuiteAccountsRepository
     /**
      * Boostrap the repo service
      * @return Wyattcast44\GSuite\GSuiteAccountsRepository
-     * @link https://developers.google.com/admin-sdk/directory/v1/reference/
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users
      */
     public function __construct(GSuiteDirectory $directory_client)
     {
@@ -156,6 +156,8 @@ class GSuiteAccountsRepository
             $accounts = Cache::get('gsuite.cache.accounts.key');
         } else {
             $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
+
+            Cache::add(config('gsuite.cache.accounts.key'), $accounts, config('gsuite.cache.accounts.cache-time'));
         }
     
         return $accounts;
