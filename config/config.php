@@ -43,22 +43,30 @@ return [
     */
     'domain' => 'business.com',
     
+    
     /*
     |--------------------------------------------------------------------------
-    | Groups cache name
+    | Cache
     |--------------------------------------------------------------------------
-    | Name to cache the gsuite groups under
-    | @link https://developers.google.com/admin-sdk/directory/v1/reference/
+    | Caching options
     */
-    'group-cache' => 'gsuite:groups',
+    'cache' => [
+        
+        'accounts' => [
+            'should-cache' => true,
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accounts cache name
-    |--------------------------------------------------------------------------
-    | Name to cache the gsuite accounts under
-    | @link https://developers.google.com/admin-sdk/directory/v1/reference/
-    */
-    'accounts-cache' => 'gsuite:accounts',
+            'key' => 'gsuite:accounts',
+            
+            'cache-time' => 600, // seconds
+        ],
+
+        'groups' => [
+            'should-cache' => true,
+            
+            'key' => 'gsuite:groups',
+
+            'cache-time' => 600, //seconds
+        ],
+    ],
     
 ];

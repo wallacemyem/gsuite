@@ -130,6 +130,8 @@ class GSuiteAccountsRepository
         } catch (\Exception $e) {
             throw new \Exception("Error Processing Request", 1);
         }
+
+        return $account;
     }
 
     /**
@@ -168,5 +170,15 @@ class GSuiteAccountsRepository
     public function checkEmailAvailability(string $email)
     {
         return true;
+    }
+
+    public function flushCache()
+    {
+        Cache::forget(config('gsuite.cache.accounts.key'));
+    }
+
+    public function shouldCache()
+    {
+        return config('gsuite.cache.accounts.should-cache');
     }
 }

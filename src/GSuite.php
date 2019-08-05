@@ -20,8 +20,7 @@ class GSuite
      */
     public function __construct()
     {
-        $this->setConfig()
-            ->setGoogleClient();
+        $this->setConfig()->setGoogleClient();
 
         return $this;
     }
