@@ -53,7 +53,9 @@ class GSuiteAccountsRepository
             throw new Exception("Error deleting account with email: {$email}.", 1);
         }
 
-        return $status;
+        $this->flushCache();
+
+        return ($status->getStatusCode() == 204) ? true : false;
     }
 
     /**
@@ -132,6 +134,8 @@ class GSuiteAccountsRepository
             throw new \Exception("Error Processing Request", 1);
         }
 
+        $this->flushCache();
+
         return $account;
     }
 
@@ -168,9 +172,14 @@ class GSuiteAccountsRepository
         return true;
     }
 
+    /**
+     * @return void
+     */
     public function flushCache()
     {
-        Cache::forget(config('gsuite.cache.accounts.key'));
+        if ($this->shouldCache()) {
+            Cache::forget(config('gsuite.cache.accounts.key'));
+        }
     }
 
     public function shouldCache()
