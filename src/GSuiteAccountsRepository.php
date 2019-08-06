@@ -14,10 +14,16 @@ class GSuiteAccountsRepository
     protected $accounts_client;
 
     /**
-     * GSuite account user name max length
+     * GSuite account user first name max length
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
      */
-    protected static $maxNameLength = 60;
+    const MAX_FIRST_NAME_LENGTH = 60;
+
+    /**
+     * GSuite account user last name max length
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
+     */
+    const MAX_LAST_NAME_LENGTH = 60;
 
     /**
      * Boostrap the repo service
@@ -25,17 +31,6 @@ class GSuiteAccountsRepository
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users
      */
     public function __construct(GSuiteDirectory $directory_client)
-    {
-        $this->setAccountsClient($directory_client);
-
-        return $this;
-    }
-
-    /**
-     * Set the GSuite Directory Account client
-     * @return Wyattcast44\GSuite\GSuiteAccountsRepository
-     */
-    protected function setAccountsClient(GSuiteDirectory $directory_client)
     {
         $this->accounts_client = $directory_client->users;
 
@@ -54,8 +49,6 @@ class GSuiteAccountsRepository
         } catch (\Exception $e) {
             throw new Exception("Error deleting account with email: {$email}.", 1);
         }
-
-        $this->flushCache();
 
         return ($status->getStatusCode() == 204) ? true : false;
     }
@@ -97,7 +90,7 @@ class GSuiteAccountsRepository
         /**
          * Ensure names meet max length requirement
          */
-        if (strlen($name['first_name']) > self::$maxNameLength || strlen($name['last_name']) > self::$maxNameLength) {
+        if (strlen($name['first_name']) > self::MAX_FIRST_NAME_LENGTH || strlen($name['last_name']) > self::MAX_LAST_NAME_LENGTH) {
             throw new \Exception("First and last name must be 60 characters or less", 1);
         }
 
@@ -135,8 +128,6 @@ class GSuiteAccountsRepository
             throw new \Exception("Error Processing Request", 1);
         }
 
-        $this->flushCache();
-
         return $account;
     }
 
@@ -146,7 +137,7 @@ class GSuiteAccountsRepository
      */
     public function list()
     {
-        if (! $this->shouldCache()) {
+        if (!$this->shouldCache()) {
             $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
 
             return $accounts;
@@ -159,7 +150,7 @@ class GSuiteAccountsRepository
 
             Cache::add(config('gsuite.cache.accounts.key'), $accounts, config('gsuite.cache.accounts.cache-time'));
         }
-    
+
         return $accounts;
     }
 
