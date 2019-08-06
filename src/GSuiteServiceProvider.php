@@ -14,7 +14,7 @@ class GSuiteServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('gsuite.php'),
+                __DIR__ . '/../config/config.php' => config_path('gsuite.php'),
             ], 'config');
         }
     }
@@ -24,7 +24,7 @@ class GSuiteServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'gsuite');
+        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'gsuite');
 
         $this->app->singleton(GSuite::class, function () {
             return new GSuite;
@@ -32,6 +32,10 @@ class GSuiteServiceProvider extends ServiceProvider
 
         $this->app->singleton(GSuiteDirectory::class, function () {
             return new GSuiteDirectory;
+        });
+
+        $this->app->singleton(GSuiteAccount::class, function () {
+            return new GSuiteAccount;
         });
     }
 
@@ -42,6 +46,6 @@ class GSuiteServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [GSuite::class, GSuiteDirectory::class];
+        return [GSuite::class, GSuiteAccount::class];
     }
 }

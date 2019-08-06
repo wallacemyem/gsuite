@@ -9,6 +9,46 @@ This is a wrapper around the
 [Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
 manage your G-Suite account in your Laravel application.
 
+## Installation
+
+You can install the package via composer:
+
+```bash
+composer require wyattcast44/gsuite
+```
+
+Once the install has finished, publish the configuration file
+
+```bash
+php artisan vendor:publish --provider="WyattCast44\GSuite\GSuiteServiceProvider" --tag="config"
+```
+
+### Configuration
+
+1. Set your account to impersonate
+
+```php
+// .env
+GOOGLE_SERVICE_ACCOUNT=email@domain.com
+```
+
+2. Update the `credentials_path` in config file, ensure you add your credentials
+   file to your `.gitignore`
+
+```php
+// gsuite.php
+'credentials_path' => storage_path('credentials.json'),
+```
+
+3. Update the domain in config file
+
+```php
+// gsuite.php
+'domain' => 'my-domain.com',
+```
+
+4. Change cache settings as needed in config file
+
 ## Usage
 
 ### G-Suite Account Management
@@ -50,20 +90,6 @@ GSuiteGroup::delete('group.example@example.com');
 
 // Add a member to a G-Suite group
 GSuiteGroup::addMember('group.email@example.com', 'john.doe@example.com');
-```
-
-## Installation
-
-You can install the package via composer:
-
-```bash
-composer require wyattcast44/gsuite
-```
-
-Once the install has finished, publish the configuration file
-
-```bash
-php artisan vendor:publish --provider="WyattCast44\GSuite\GSuiteServiceProvider" --tag="config"
 ```
 
 ### Testing
