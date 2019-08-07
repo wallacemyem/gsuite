@@ -29,12 +29,12 @@ class GSuiteServiceProvider extends ServiceProvider
             return new GSuite;
         });
 
-        $this->app->singleton(GSuiteDirectory::class, function () {
-            return new GSuiteDirectory;
-        });
+        // $this->app->singleton(GSuiteDirectory::class, function () {
+        //     return new GSuiteDirectory;
+        // });
 
-        $this->app->singleton(GSuiteAccount::class, function () {
-            return new GSuiteAccount;
-        });
+        // $this->app->singleton(GSuiteAccount::class, function () {
+        //     return new GSuiteAccount;
+        // });
     }
 }
