@@ -8,26 +8,30 @@ class GSuiteAccountsRepository
 {
     /**
      * GSuite Directory Accounts Client
+     *
      * \Google_Service_Directory_Resource_Users
      */
     protected $accounts_client;
 
     /**
      * GSuite account user first name max length
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
      */
     const MAX_FIRST_NAME_LENGTH = 60;
 
     /**
      * GSuite account user last name max length
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
      */
     const MAX_LAST_NAME_LENGTH = 60;
 
     /**
-     * Boostrap the repo service
-     * @return Wyattcast44\GSuite\GSuiteAccountsRepository
+     * Boostrap the directory client
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users
+     * @return Wyattcast44\GSuite\GSuiteAccountsRepository
      */
     public function __construct(GSuiteDirectory $directory_client)
     {
