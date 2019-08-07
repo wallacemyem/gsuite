@@ -44,10 +44,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Wyattcast44\\Gsuite\\GsuiteServiceProvider"
+                "Wyattcast44\\GSuite\\GSuiteServiceProvider"
             ],
             "aliases": {
-                "Gsuite": "Wyattcast44\\Gsuite\\GsuiteFacade"
+                "Gsuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade",
+                "GsuiteAccount": "Wyattcast44\\GSuite\\Facades\\GSuiteAccountFacade"
             }
         }
     }

@@ -5,7 +5,7 @@ namespace Wyattcast44\GSuite\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Wyattcast44\Gsuite\GSuiteAccount
+ * @see \Wyattcast44\Gsuite\Accounts\GSuiteAccount
  */
 class GSuiteFacade extends Facade
 {
@@ -16,6 +16,6 @@ class GSuiteFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return '';
+        return 'gsuite-account';
     }
 }
