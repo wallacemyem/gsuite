@@ -1,11 +1,11 @@
 <?php
 
-namespace Wyattcast44\GSuite;
+namespace Wyattcast44\GSuite\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Wyattcast44\Gsuite\Skeleton\SkeletonClass
+ * @see \Wyattcast44\Gsuite\GSuiteAccount
  */
 class GSuiteFacade extends Facade
 {
@@ -16,6 +16,6 @@ class GSuiteFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return GSuite::class;
+        return '';
     }
 }

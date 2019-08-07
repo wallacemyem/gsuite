@@ -1,8 +1,9 @@
 <?php
 
-namespace Wyattcast44\GSuite;
+namespace Wyattcast44\GSuite\Accounts;
 
 use Illuminate\Support\Arr;
+use Wyattcast44\GSuite\GSuiteDirectory;
 
 class GSuiteAccountsRepository
 {

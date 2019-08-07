@@ -2,8 +2,8 @@
 
 namespace Wyattcast44\GSuite;
 
-use GSuiteAccount;
 use Illuminate\Support\ServiceProvider;
+use Wyattcast44\GSuite\Accounts\GSuiteAccount;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -12,11 +12,10 @@ class GSuiteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../config/gsuite.php' => config_path('gsuite.php'),
-            ]);
-        }
+        // Publish config file...
+        $this->publishes([
+            __DIR__ . '/../config/gsuite.php' => config_path('gsuite.php'),
+        ]);
     }
 
     /**
@@ -37,15 +36,5 @@ class GSuiteServiceProvider extends ServiceProvider
         $this->app->singleton(GSuiteAccount::class, function () {
             return new GSuiteAccount;
         });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [GSuite::class, GSuiteAccount::class];
     }
 }
