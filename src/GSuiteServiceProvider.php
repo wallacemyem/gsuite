@@ -3,6 +3,7 @@
 namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
+use Wyattcast44\GSuite\Accounts\GSuiteAccount;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -28,12 +29,12 @@ class GSuiteServiceProvider extends ServiceProvider
             return new GSuite;
         });
 
-        // $this->app->singleton(GSuiteDirectory::class, function () {
-        //     return new GSuiteDirectory;
-        // });
+        $this->app->singleton('gsuite-directory', function () {
+            return new GSuiteDirectory;
+        });
 
-        // $this->app->singleton(GSuiteAccount::class, function () {
-        //     return new GSuiteAccount;
-        // });
+        $this->app->singleton('gsuite-account', function () {
+            return new GSuiteAccount;
+        });
     }
 }
