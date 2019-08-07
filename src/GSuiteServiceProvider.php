@@ -30,11 +30,11 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('gsuite-directory', function () {
-            return new GSuiteDirectory;
+            return new GSuiteDirectory(app('gsuite'));
         });
 
         $this->app->singleton('gsuite-account', function () {
-            return new GSuiteAccount;
+            return new GSuiteAccount(app('gsuite-directory'));
         });
     }
 }
