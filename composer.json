@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Wyattcast44\\Gsuite\\": "src"
+            "Wyattcast44\\GSuite\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Wyattcast44\\Gsuite\\Tests\\": "tests"
+            "Wyattcast44\\GSuite\\Tests\\": "tests"
         }
     },
     "scripts": {
