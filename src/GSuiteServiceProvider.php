@@ -15,7 +15,7 @@ class GSuiteServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../config/gsuite.php' => config_path('gsuite.php'),
-            ], 'config');
+            ]);
         }
     }
 
