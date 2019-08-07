@@ -3,6 +3,7 @@
 namespace Wyattcast44\GSuite\Accounts;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Wyattcast44\GSuite\GSuiteDirectory;
 
 class GSuiteAccountsRepository
@@ -12,7 +13,7 @@ class GSuiteAccountsRepository
      *
      * \Google_Service_Directory_Resource_Users
      */
-    protected $accounts_client;
+    protected $client;
 
     /**
      * GSuite account user first name max length
@@ -36,7 +37,7 @@ class GSuiteAccountsRepository
      */
     public function __construct(GSuiteDirectory $directory_client)
     {
-        $this->accounts_client = $directory_client->users;
+        $this->client = $directory_client->client->users;
 
         return $this;
     }
@@ -49,7 +50,7 @@ class GSuiteAccountsRepository
     public function delete(string $email)
     {
         try {
-            $status = $this->accounts_client->delete($email);
+            $status = $this->client->delete($email);
         } catch (\Exception $e) {
             throw new Exception("Error deleting account with email: {$email}.", 1);
         }
@@ -66,7 +67,7 @@ class GSuiteAccountsRepository
     public function get(string $email, string $projection = 'full')
     {
         try {
-            $account = $this->accounts_client->get($email, ['projection' => $projection]);
+            $account = $this->client->get($email, ['projection' => $projection]);
         } catch (\Exception $e) {
             throw new Exception("Error retriving account with email: {$email}", 1);
         }
@@ -127,7 +128,7 @@ class GSuiteAccountsRepository
          * Attempt to actually create the new GSuite account
          */
         try {
-            $account = $this->accounts_client->insert($google_user);
+            $account = $this->client->insert($google_user);
         } catch (\Exception $e) {
             throw new \Exception("Error Processing Request", 1);
         }
@@ -142,7 +143,7 @@ class GSuiteAccountsRepository
     public function list()
     {
         if (!$this->shouldCache()) {
-            $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
+            $accounts = $this->client->listUsers(['domain' => config('gsuite.domain')])->users;
 
             return $accounts;
         }
@@ -150,7 +151,7 @@ class GSuiteAccountsRepository
         if (Cache::has(config('gsuite.cache.accounts.key'))) {
             $accounts = Cache::get('gsuite.cache.accounts.key');
         } else {
-            $accounts = $this->accounts_client->listUsers(['domain' => config('gsuite.domain')])->users;
+            $accounts = $this->client->listUsers(['domain' => config('gsuite.domain')])->users;
 
             Cache::add(config('gsuite.cache.accounts.key'), $accounts, config('gsuite.cache.accounts.cache-time'));
         }

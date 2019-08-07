@@ -8,7 +8,7 @@ class GSuiteDirectory
      * \Google_Service_Directory
      * @link https://developers.google.com/admin-sdk/directory
      */
-    protected $directory_client;
+    public $client;
 
     /**
      * Bootstrap the service
@@ -18,7 +18,7 @@ class GSuiteDirectory
     {
         $this->setDirectoryClient($gsuite);
 
-        return $this->directory_client;
+        return $this->client;
     }
 
     /**
@@ -28,6 +28,6 @@ class GSuiteDirectory
      */
     protected function setDirectoryClient(GSuite $gsuite)
     {
-        $this->directory_client = new \Google_Service_Directory($gsuite);
+        $this->client = new \Google_Service_Directory($gsuite->google_client);
     }
 }

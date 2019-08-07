@@ -4,6 +4,7 @@ namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Accounts\GSuiteAccount;
+use Wyattcast44\GSuite\Accounts\GSuiteAccountsRepository;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -30,11 +31,15 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('gsuite-directory', function () {
-            return new GSuiteDirectory;
+            return new GSuiteDirectory(app('gsuite'));
+        });
+
+        $this->app->singleton('gsuite-accounts-repo', function () {
+            return new GSuiteAccountsRepository(app('gsuite-directory'));
         });
 
         $this->app->singleton('gsuite-account', function () {
-            return new GSuiteAccount;
+            return new GSuiteAccount(app('gsuite-accounts-repo'));
         });
     }
 }
