@@ -25,7 +25,7 @@ class GSuiteServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/gsuite.php', 'gsuite');
 
-        $this->app->singleton(GSuite::class, function () {
+        $this->app->singleton('gsuite', function () {
             return new GSuite;
         });
 

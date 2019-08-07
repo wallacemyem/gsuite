@@ -16,6 +16,6 @@ class GSuiteFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return '';
+        return 'gsuite';
     }
 }
