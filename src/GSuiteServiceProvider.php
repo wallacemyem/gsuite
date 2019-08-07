@@ -3,7 +3,6 @@
 namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
-use Wyattcast44\GSuite\Accounts\GSuiteAccount;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
