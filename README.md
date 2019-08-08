@@ -1,6 +1,8 @@
 # G-Suite Admin SDK Wrapper
 
-<!-- [![Latest Version on Packagist](https://img.shields.io/packagist/v/wyattcast44/gsuite.svg?style=flat-square)](https://packagist.org/packages/wyattcast44/gsuite)
+<!-- [![Latest Version on Packagist](https://img.shields.io/packagist/v/wyattcast44/gsuite.svg?style=flat-square)](https://packagist.org/packages/wyattcast44/gsuite) -->
+
+<!--
 [![Build Status](https://img.shields.io/travis/wyattcast44/gsuite/master.svg?style=flat-square)](https://travis-ci.org/wyattcast44/gsuite)
 [![Quality Score](https://img.shields.io/scrutinizer/g/wyattcast44/gsuite.svg?style=flat-square)](https://scrutinizer-ci.com/g/wyattcast44/gsuite)
 [![Total Downloads](https://img.shields.io/packagist/dt/wyattcast44/gsuite.svg?style=flat-square)](https://packagist.org/packages/wyattcast44/gsuite) -->
@@ -23,7 +25,7 @@ composer require wyattcast44/gsuite
 Once the install has finished, publish the configuration file
 
 ```bash
-php artisan vendor:publish --provider="WyattCast44\GSuite\GSuiteServiceProvider" --tag="config"
+php artisan vendor:publish --provider="WyattCast44\GSuite\GSuiteServiceProvider" --tag=config
 ```
 
 ### Configuration
