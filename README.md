@@ -97,7 +97,9 @@ GSuiteGroup::addMember('group.email@example.com', 'john.doe@example.com');
 
 ### Other Resources
 
-You can use the `GoogleServicesClient` class to get client for other google services, for example let's say you wanted to manage your domain's [organizational units](https://developers.google.com/admin-sdk/directory/v1/guides/manage-org-units).
+You can use the `GoogleServicesClient` class to get api clients for other google
+services, for example let's say you wanted to manage your domain's
+[organizational units](https://developers.google.com/admin-sdk/directory/v1/guides/manage-org-units).
 
 You can get a api client for the org units like so:
 
