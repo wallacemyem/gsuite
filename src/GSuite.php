@@ -40,9 +40,4 @@ class GSuite
 
         return $this;
     }
-
-    public function accounts(AccountsRepo $accounts_repo)
-    {
-        return $accounts_repo;
-    }
 }

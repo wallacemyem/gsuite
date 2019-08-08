@@ -1,8 +1,6 @@
 <?php
 
-namespace Wyattcast44\GSuite\Accounts;
-
-use Wyattcast44\GSuite\Services\Accounts\AccountsRepo;
+namespace Wyattcast44\GSuite\Services\Accounts;
 
 class GSuiteAccount
 {

@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Clients\GoogleClient;
 use Wyattcast44\GSuite\Accounts\GSuiteAccount;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Accounts\GSuiteAccountsRepository;
 use Wyattcast44\GSuite\Services\Accounts\AccountsRepo;
 
 class GSuiteServiceProvider extends ServiceProvider
@@ -28,6 +27,10 @@ class GSuiteServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/gsuite.php', 'gsuite');
+
+        $this->app->singleton('gsuite', function () {
+            return new GSuite;
+        });
     
         $this->app->singleton('google-client', function () {
             return new GoogleClient;
@@ -39,10 +42,6 @@ class GSuiteServiceProvider extends ServiceProvider
 
         $this->app->bind('gsuite-accounts-repo', function () {
             return new AccountsRepo(app('google-services'));
-        });
-
-        $this->app->singleton('gsuite', function () {
-            return new GSuite;
         });
 
         $this->app->singleton('gsuite-account', function () {
