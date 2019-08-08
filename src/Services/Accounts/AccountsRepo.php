@@ -117,7 +117,7 @@ class AccountsRepo implements AccountsRepoContract
             throw new \Exception("Name parameter must contain the following items: first_name, last_name", 1);
         }
 
-        /**
+        /**;
          * Ensure names meet max length requirement
          */
         if (strlen($name['first_name']) > self::MAX_FIRST_NAME_LENGTH || strlen($name['last_name']) > self::MAX_LAST_NAME_LENGTH) {
@@ -155,30 +155,35 @@ class AccountsRepo implements AccountsRepoContract
         try {
             $account = $this->client->insert($google_user);
         } catch (\Exception $e) {
-            throw new \Exception("Error creating new G-Suite account.", 1);
+            throw $e;
         }
 
         return $account;
     }
 
-    // $parameters = [
-    //     "customFieldMask",
-    //     "customer",
-    //     "domain",
-    //     "event",
-    //     "maxResults",
-    //     "orderBy",
-    //     "pageToken",
-    //     "projection",
-    //     "query",
-    //     "showDeleted",
-    //     "sortOrder",
-    //     "viewType",
-    // ];
-
-    public function list(array $parameters)
+    /**
+     * Retrieve a list a created G-Suite accounts
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/list
+     *
+     * @param array $parameters
+     * @return array
+     */
+    public function list(array $parameters = [])
     {
-        //
+        $defaultParameters = [
+            "domain" => config('gsuite.domain'),
+        ];
+
+        $parameters = array_merge($defaultParameters, $parameters);
+
+        try {
+            $accounts = $this->client->list($parameters);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $accounts;
     }
 
     public function makeAdmin(string $userKey)
