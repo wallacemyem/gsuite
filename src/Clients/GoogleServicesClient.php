@@ -67,7 +67,7 @@ class GoogleServicesClient implements ClientContract
     public function getService(string $service_name)
     {
         if (!in_array($service_name, self::$services)) {
-            throw new Exception("Google Services Directory, does not have a service named: {$service_name}", 1);
+            throw new \Exception("Google services directory, does not have a service named: {$service_name}", 1);
         }
 
         return $this->client->$service_name;
