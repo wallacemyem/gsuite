@@ -53,6 +53,11 @@ class AccountsRepo implements AccountsRepoContract
         return $this->client;
     }
 
+    /**
+     * Should the accounts be cached
+     *
+     * @return bool
+     */
     public function shouldCache()
     {
         return config('gsuite.cache.accounts.should-cache');
