@@ -4,7 +4,7 @@ namespace Wyattcast44\GSuite\Clients;
 
 use Wyattcast44\GSuite\Contracts\ClientContract;
 
-class GoogleServiceDirectoryClient implements ClientContract
+class GoogleServicesClient implements ClientContract
 {
     /**
      * The \Google_Service_Directory instance
@@ -46,11 +46,21 @@ class GoogleServiceDirectoryClient implements ClientContract
      */
     public function __construct(GoogleClient $google_client)
     {
-        $this->client = new \Google_Service_Directory($google_client->getClient());
+        return $this->setClient($google_client);
+    }
+
+    /**
+     * Set the client
+     *
+     * @return self
+     */
+    public function setClient(GoogleClient $google)
+    {
+        $this->client = new \Google_Service_Directory($google->getClient());
 
         return $this;
     }
-
+    
     /**
      * Get the configured client
      *

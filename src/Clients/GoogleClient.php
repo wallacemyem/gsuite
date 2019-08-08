@@ -18,9 +18,7 @@ class GoogleClient implements ClientContract
      */
     public function __construct()
     {
-        $this->setEnv()->setClient()->setScopes()->setSubject();
-
-        return $this;
+        return $this->setEnv()->setClient()->setScopes()->setSubject();
     }
 
     /**
