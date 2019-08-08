@@ -1,6 +1,6 @@
 <?php
 
-namespace Wyattcast44\GSuite\Resources;
+namespace Wyattcast44\GSuite\Resources\Accounts;
 
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
@@ -194,7 +194,15 @@ class AccountsRepo implements AccountsRepoContract
         $parameters = array_merge($defaultParameters, $parameters);
 
         try {
-            $accounts = $this->client->listUsers($parameters);
+            if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.accounts.key'))) {
+                $accounts = $this->getCache(config('gsuite.cache.accounts.key'));
+            } else {
+                $accounts = $this->client->listUsers($parameters);
+
+                if ($this->shouldCache()) {
+                    $this->putCache(config('gsuite.cache.accounts.key'), $accounts, config('gsuite.cache.accounts.cache-time'));
+                }
+            }
         } catch (\Exception $e) {
             throw $e;
         }

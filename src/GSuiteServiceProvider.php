@@ -40,8 +40,8 @@ class GSuiteServiceProvider extends ServiceProvider
             return new AccountsRepo(app('google-services'));
         });
 
-        // $this->app->singleton('gsuite-account', function () {
-        //     return new GSuiteAccount(app('gsuite-accounts-repo'));
-        // });
+        $this->app->singleton('gsuite-account', function () {
+            return new GSuiteAccount(app('gsuite-accounts-repo'));
+        });
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Wyattcast44\GSuite\Resources;
+namespace Wyattcast44\GSuite\Resources\Accounts;
 
 class GSuiteAccount
 {
@@ -16,7 +16,7 @@ class GSuiteAccount
      */
     public function all()
     {
-        return collect($this->accounts_repo->list());
+        return collect($this->accounts_repo->list()->users);
     }
 
     /**

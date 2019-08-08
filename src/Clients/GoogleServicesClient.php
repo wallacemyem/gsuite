@@ -11,7 +11,7 @@ class GoogleServicesClient implements ClientContract
      */
     protected $client;
 
-    protected static $services = [
+    protected $services = [
         'asps',
         'channels',
         'chromeoasdevices',
@@ -66,10 +66,20 @@ class GoogleServicesClient implements ClientContract
      */
     public function getService(string $service_name)
     {
-        if (!in_array($service_name, self::$services)) {
+        if (!in_array($service_name, $this->services)) {
             throw new \Exception("Google services directory, does not have a service named: {$service_name}", 1);
         }
 
         return $this->client->$service_name;
+    }
+
+    /**
+     * Get a list of services your can request
+     *
+     * @return array
+     */
+    public function listServices()
+    {
+        return $this->services;
     }
 }
