@@ -63,7 +63,7 @@ class GroupsRepo implements GroupsRepoContract
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/groups/get
      */
-    public function get(string $groupKey, bool $withMembers)
+    public function get(string $groupKey, bool $withMembers = true)
     {
         if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.groups.key') . ':' . $groupKey)) {
             $group = $this->getCache(config('gsuite.cache.groups.key') . ':' . $groupKey);
@@ -118,7 +118,7 @@ class GroupsRepo implements GroupsRepoContract
             $groups = $this->getCache(config('gsuite.cache.groups.key'));
         } else {
             try {
-                $groups = $this->client->listGroups(['domain' => config('gsuite.domain')]);
+                $groups = $this->client->listGroups(['domain' => config('gsuite.domain')])->groups;
 
                 if ($this->shouldCache()) {
                     $this->putCache(config('gsuite.cache.groups.key'), $groups, config('gsuite.cache.groups.cache-time'));
