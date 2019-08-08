@@ -2,6 +2,8 @@
 
 namespace Wyattcast44\GSuite;
 
+use Wyattcast44\GSuite\Services\Accounts\AccountsRepo;
+
 class GSuite
 {
     /**
@@ -37,5 +39,10 @@ class GSuite
         });
 
         return $this;
+    }
+
+    public function accounts(AccountsRepo $accounts_repo)
+    {
+        return $accounts_repo;
     }
 }
