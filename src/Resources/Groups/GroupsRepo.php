@@ -114,7 +114,21 @@ class GroupsRepo implements GroupsRepoContract
      */
     public function list()
     {
-        //
+        if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.groups.key'))) {
+            $groups = $this->getCache(config('gsuite.cache.groups.key'));
+        } else {
+            try {
+                $groups = $this->client->listGroups(['domain' => config('gsuite.domain')]);
+
+                if ($this->shouldCache()) {
+                    $this->putCache(config('gsuite.cache.groups.key'), $groups, config('gsuite.cache.groups.cache-time'));
+                }
+            } catch (\Exception $e) {
+                throw \Exception("Error retriving groups.", 1);
+            }
+        }
+
+        return $groups;
     }
 
     /**
