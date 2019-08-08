@@ -4,11 +4,11 @@ namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Clients\GoogleClient;
+use Wyattcast44\GSuite\Resources\Groups\GroupsRepo;
 use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepo;
 use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
-use Wyattcast44\GSuite\Resources\Groups\GroupsRepo;
 
 class GSuiteServiceProvider extends ServiceProvider
 {

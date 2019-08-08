@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Wyattcast44\Gsuite\Accounts\GSuiteAccount
  */
-class GSuiteAccountFacade extends Facade
+class GSuiteGroupFacade extends Facade
 {
     /**
      * Get the registered name of the component.

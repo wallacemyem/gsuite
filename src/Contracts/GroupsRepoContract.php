@@ -8,7 +8,7 @@ interface GroupsRepoContract
     
     public function get(string $groupKey);
 
-    public function insert();
+    public function insert(string $email, string $name, string $description);
 
     // $params = [
     //     'customer',

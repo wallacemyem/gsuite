@@ -24,7 +24,7 @@ class GSuiteGroup
      */
     public function create(string $email, string $name = '', string $description = '')
     {
-        return $this->repo->create($email, $name, $description);
+        return $this->repo->insert($email, $name, $description);
     }
 
     /**
