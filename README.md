@@ -25,7 +25,7 @@ composer require wyattcast44/gsuite
 Once the install has finished, publish the configuration file
 
 ```bash
-php artisan vendor:publish --provider="WyattCast44\GSuite\GSuiteServiceProvider" --tag=config
+php artisan vendor:publish
 ```
 
 ### Configuration
