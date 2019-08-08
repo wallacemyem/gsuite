@@ -2,13 +2,15 @@
 
 namespace Wyattcast44\GSuite\Accounts;
 
+use Wyattcast44\GSuite\Services\Accounts\AccountsRepo;
+
 class GSuiteAccount
 {
     protected $accounts_repo;
 
-    public function __construct(GSuiteAccountsRepository $accounts_repo)
+    public function __construct(AccountsRepo $repo)
     {
-        $this->accounts_repo = $accounts_repo;
+        $this->accounts_repo = $repo;
     }
 
     /**
