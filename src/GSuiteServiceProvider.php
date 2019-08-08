@@ -5,6 +5,8 @@ namespace Wyattcast44\GSuite;
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Accounts\GSuiteAccount;
 use Wyattcast44\GSuite\Accounts\GSuiteAccountsRepository;
+use Wyattcast44\GSuite\Clients\GoogleClient;
+use Wyattcast44\GSuite\Clients\GoogleServiceDirectoryClient;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,14 @@ class GSuiteServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/gsuite.php', 'gsuite');
+    
+        $this->app->singleton('google-client', function () {
+            return new GoogleClient;
+        });
+
+        $this->app->singleton('google-services', function () {
+            return new GoogleServiceDirectoryClient(app('google-client'));
+        });
 
         $this->app->singleton('gsuite', function () {
             return new GSuite;

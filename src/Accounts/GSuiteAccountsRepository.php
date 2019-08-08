@@ -5,6 +5,7 @@ namespace Wyattcast44\GSuite\Accounts;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Wyattcast44\GSuite\GSuiteDirectory;
+use Wyattcast44\GSuite\Clients\GoogleServiceDirectoryClient;
 
 class GSuiteAccountsRepository
 {
@@ -35,12 +36,21 @@ class GSuiteAccountsRepository
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users
      * @return Wyattcast44\GSuite\GSuiteAccountsRepository
      */
-    public function __construct(GSuiteDirectory $directory_client)
+    public function __construct(GoogleServiceDirectoryClient $services)
     {
-        $this->client = $directory_client->client->users;
+        $this->client = $services->getService('users');
 
+        dd($this->client);
+        
         return $this;
     }
+
+    // public function __construct(GSuiteDirectory $directory_client)
+    // {
+    //     $this->client = $directory_client->client->users;
+
+    //     return $this;
+    // }
 
     /**
      * Delete a GSuite Account

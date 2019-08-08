@@ -47,6 +47,7 @@
                 "Wyattcast44\\GSuite\\GSuiteServiceProvider"
             ],
             "aliases": {
+                "GoogleClient": "Wyattcast44\\GSuite\\Facades\\GoogleClientFacade",
                 "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade",
                 "GSuiteAccount": "Wyattcast44\\GSuite\\Facades\\GSuiteAccountFacade"
             }
