@@ -2,25 +2,27 @@
 
 namespace Wyattcast44\GSuite\Traits;
 
+use Illuminate\Support\Facades\Cache;
+
 trait CachesResults
 {
-    protected function check(string $key)
+    protected function checkCache(string $key)
     {
-        //
+        return Cache::has($key);
     }
 
-    public function flush(string $key)
+    public function flushCache(string $key)
     {
-        //
+        return Cache::forget($key);
     }
 
-    protected function get(string $key)
+    protected function getCache(string $key, $default = [])
     {
-        //
+        return Cache::get($key, $default);
     }
 
-    protected function put(string $key, $data, $time)
+    protected function putCache(string $key, $data, $time)
     {
-        //
+        return Cache::put($key, $data, $time);
     }
 }
