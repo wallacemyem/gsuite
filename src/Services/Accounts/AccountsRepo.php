@@ -74,7 +74,7 @@ class AccountsRepo implements AccountsRepoContract
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/get
      *
-     * @param string $userKey | The accounts primary email address, an alias email, or unique user key
+     * @param string $userKey | The accounts primary email address, an alias email, or unique user id
      * @param string $projection | Options: basic, custom, full, Default: full
      * @param string $viewType | Options: admin_view, domain_public, Default: admin_view
      * @return \Google_Service_Directory_User
@@ -186,13 +186,33 @@ class AccountsRepo implements AccountsRepoContract
         return $accounts;
     }
 
+    /**
+     * Marks an account as a super-admin
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/makeAdmin
+     *
+     * @param string $userKey | The accounts primary email address, an alias email, or unique user id
+     */
     public function makeAdmin(string $userKey)
     {
-        //
+        try {
+            $response = $this->client->makeAdmin($userKey);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return ($response->getStatusCode() == 204) ? true : false;
     }
 
-    public function update(string $userKey)
+    /**
+     * Updates an accounts information
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/update
+     *
+     * @param string $userKey | The accounts primary email address, an alias email, or unique user id
+     */
+    public function update(string $userKey, array $parameters = [])
     {
-        //
+        throw new \Exception("Error Processing Request", 1);
     }
 }
