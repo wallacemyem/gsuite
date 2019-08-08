@@ -207,6 +207,8 @@ class AccountsRepo implements AccountsRepoContract
     /**
      * Updates an accounts information
      *
+     * @todo Experiment with how this works
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/update
      *
      * @param string $userKey | The accounts primary email address, an alias email, or unique user id
@@ -214,5 +216,10 @@ class AccountsRepo implements AccountsRepoContract
     public function update(string $userKey, array $parameters = [])
     {
         throw new \Exception("Error Processing Request", 1);
+    }
+
+    public function checkEmailAvailability(string $email)
+    {
+        return true;
     }
 }
