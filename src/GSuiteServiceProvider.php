@@ -3,10 +3,10 @@
 namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
-use Wyattcast44\GSuite\Accounts\GSuiteAccount;
-use Wyattcast44\GSuite\Accounts\GSuiteAccountsRepository;
 use Wyattcast44\GSuite\Clients\GoogleClient;
-use Wyattcast44\GSuite\Clients\GoogleServiceDirectoryClient;
+use Wyattcast44\GSuite\Accounts\GSuiteAccount;
+use Wyattcast44\GSuite\Clients\GoogleServicesClient;
+use Wyattcast44\GSuite\Accounts\GSuiteAccountsRepository;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -33,7 +33,7 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('google-services', function () {
-            return new GoogleServiceDirectoryClient(app('google-client'));
+            return new GoogleServicesClient(app('google-client'));
         });
 
         $this->app->singleton('gsuite', function () {
