@@ -28,15 +28,15 @@ class GSuiteGroup
     }
 
     /**
-     * Get a single GSuite account
+     * Get a single G-Suite group
      */
     public function get(string $email)
     {
-        return $this->repo->get($email);
+        return $this->repo->get($email, true);
     }
 
     /**
-     * Delete a single GSuite account
+     * Delete a single G-Suite group
      */
     public function delete(string $email)
     {
@@ -44,10 +44,10 @@ class GSuiteGroup
     }
 
     /**
-     * Get the client for user accounts
+     * Get the client for groups
      */
     public function getClient()
     {
-        return $this->accounts_repo;
+        return $this->repo;
     }
 }
