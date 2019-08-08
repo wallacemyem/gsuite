@@ -8,6 +8,7 @@ return [
     |--------------------------------------------------------------------------
     | The email of the account to impersonate, account should have neccessary
     | permissions for the scopes requested
+    |
     | @link https://developers.google.com/admin-sdk/directory/v1/guides/delegation
     |
     */
@@ -22,13 +23,14 @@ return [
     | your credentials file to your .gitignore file
     |
     */
-    'credentials_path' => storage_path('your-credentials.json'),
+    'credentials_path' => storage_path('credentials.json'),
 
     /*
     |--------------------------------------------------------------------------
     | Scopes
     |--------------------------------------------------------------------------
     | The scopes requested
+    |
     | @link https://developers.google.com/admin-sdk/directory/v1/guides/authorizing
     |
     */
