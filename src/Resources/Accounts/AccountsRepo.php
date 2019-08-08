@@ -1,6 +1,6 @@
 <?php
 
-namespace Wyattcast44\GSuite\Services\Accounts;
+namespace Wyattcast44\GSuite\Resources;
 
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;

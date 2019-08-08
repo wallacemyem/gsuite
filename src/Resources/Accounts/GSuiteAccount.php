@@ -1,6 +1,6 @@
 <?php
 
-namespace Wyattcast44\GSuite\Services\Accounts;
+namespace Wyattcast44\GSuite\Resources;
 
 class GSuiteAccount
 {
