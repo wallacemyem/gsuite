@@ -9,6 +9,9 @@ This is a wrapper around the
 [Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
 manage your G-Suite account in your Laravel application.
 
+**_Warning: under active development, use at your own risk. A version will be
+tagged when ready for testing._**
+
 ## Installation
 
 You can install the package via composer:
@@ -47,7 +50,7 @@ GOOGLE_SERVICE_ACCOUNT=email@domain.com
 'domain' => 'my-domain.com',
 ```
 
-4. Change cache settings as needed in config file
+4. Change cache settings as desired in config file
 
 ## Usage
 

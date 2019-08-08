@@ -2,11 +2,14 @@
 
 namespace Wyattcast44\GSuite\Services\Accounts;
 
+use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Contracts\AccountsRepoContract;
 
 class AccountsRepo implements AccountsRepoContract
 {
+    use CachesResults;
+
     /**
      * The accounts client
      *
@@ -50,6 +53,11 @@ class AccountsRepo implements AccountsRepoContract
         return $this->client;
     }
 
+    public function shouldCache()
+    {
+        return config('gsuite.cache.accounts.should-cache');
+    }
+
     /**
      * Delete an account
      *
@@ -86,10 +94,18 @@ class AccountsRepo implements AccountsRepoContract
         }
 
         try {
-            $account = $this->client->get($userKey, [
-                'projection' => $projection,
-                'viewType' => $viewType,
-            ]);
+            if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.accounts.key') . ':' . $userKey)) {
+                $account = $this->getCache(config('gsuite.cache.accounts.key') . ':' . $userKey);
+            } else {
+                $account = $this->client->get($userKey, [
+                    'projection' => $projection,
+                    'viewType' => $viewType,
+                ]);
+
+                if ($this->shouldCache()) {
+                    $this->putCache(config('gsuite.cache.accounts.key') . ':' . $userKey, $account, config('gsuite.cache.accounts.cache-time'));
+                }
+            }
         } catch (\Exception $e) {
             throw new \Exception("Error retriving account.", 1);
         }
