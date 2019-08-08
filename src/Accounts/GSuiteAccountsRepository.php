@@ -39,8 +39,6 @@ class GSuiteAccountsRepository
     public function __construct(GoogleServiceDirectoryClient $services)
     {
         $this->client = $services->getService('users');
-
-        dd($this->client);
         
         return $this;
     }
