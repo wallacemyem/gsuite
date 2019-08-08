@@ -28,6 +28,16 @@ class GroupsRepo implements GroupsRepoContract
     }
 
     /**
+     * Should the groups be cached
+     *
+     * @return bool
+     */
+    public function shouldCache()
+    {
+        return config('gsuite.cache.groups.should-cache');
+    }
+
+    /**
      * Delete a G-Suite group
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/groups/delete
@@ -55,7 +65,21 @@ class GroupsRepo implements GroupsRepoContract
      */
     public function get(string $groupKey, bool $withMembers)
     {
-        //
+        if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.groups.key') . ':' . $groupKey)) {
+            $group = $this->getCache(config('gsuite.cache.groups.key') . ':' . $groupKey);
+        } else {
+            try {
+                $group = $this->client->get($groupKey);
+
+                if ($this->shouldCache()) {
+                    $this->putCache(config('gsuite.cache.groups.key') . ':' . $groupKey, $group, config('gsuite.cache.groups.cache-time'));
+                }
+            } catch (\Exception $e) {
+                throw \Exception("Error retriving group with key: {$groupKey}.", 1);
+            }
+        }
+
+        return $group;
     }
 
     /**
