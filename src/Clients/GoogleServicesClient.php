@@ -44,17 +44,7 @@ class GoogleServicesClient implements ClientContract
      *
      * @return self
      */
-    public function __construct(GoogleClient $google_client)
-    {
-        return $this->setClient($google_client);
-    }
-
-    /**
-     * Set the client
-     *
-     * @return self
-     */
-    public function setClient(GoogleClient $google)
+    public function __construct(GoogleClient $google)
     {
         $this->client = new \Google_Service_Directory($google->getClient());
 
