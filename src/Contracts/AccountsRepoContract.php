@@ -6,16 +6,9 @@ interface AccountsRepoContract
 {
     public function delete(string $userKey);
     
-    public function get();
-    
-    // $parameters = [
-    //     'userKey',
-    //     'customFieldMask',
-    //     'projection',
-    //     'viewType'
-    // ];
+    public function get(string $userKey, string $projection, string $viewType, $customFieldMask);
 
-    public function insert();
+    public function insert(array $name, string $email, string $password, bool $changePasswordNextLogin);
 
     public function list(array $parameters);
     
@@ -36,5 +29,5 @@ interface AccountsRepoContract
 
     public function makeAdmin(string $userKey);
 
-    public function update(string $userKey);
+    public function update(string $userKey, array $parameters);
 }

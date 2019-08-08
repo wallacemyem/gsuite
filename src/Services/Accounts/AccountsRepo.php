@@ -79,7 +79,7 @@ class AccountsRepo implements AccountsRepoContract
      * @param string $viewType | Options: admin_view, domain_public, Default: admin_view
      * @return \Google_Service_Directory_User
      */
-    public function get(string $userKey, string $projection = 'full', $viewType = 'admin_view', $customFieldMask = '')
+    public function get(string $userKey, string $projection = 'full', string $viewType = 'admin_view', $customFieldMask = '')
     {
         if ($projection === 'custom' && $customFieldMask === '') {
             throw new \Exception("Error retriving account for user key: {$userKey}, when using {$projection}, ensure you set the customFieldMask parameter.", 1);
@@ -178,7 +178,7 @@ class AccountsRepo implements AccountsRepoContract
         $parameters = array_merge($defaultParameters, $parameters);
 
         try {
-            $accounts = $this->client->list($parameters);
+            $accounts = $this->client->listUsers($parameters);
         } catch (\Exception $e) {
             throw $e;
         }
