@@ -8,8 +8,14 @@ use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccounts;
 
 class GSuite
 {
+    /**
+     * @see GroupsRepository
+     */
     protected $groups_repo;
 
+    /**
+     * @see AccountsRepository
+     */
     protected $accounts_repo;
 
     public function __construct(GroupsRepository $groups_repo, GSuiteAccounts $accounts_repo)

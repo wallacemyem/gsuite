@@ -11,6 +11,10 @@ This is a basic outline of the package, its architecture, etc.
 -   `SuspendAccount`: `gsuite:suspend-account`
 -   `UnsuspendAccount`: `gsuite:unsuspend-account`
 
+### Groups
+
+-   `CreateGroup`: `gsuite:create-group`
+
 ## Actions
 
 Actions are queueable classes that encapsulate logic and tasks.
