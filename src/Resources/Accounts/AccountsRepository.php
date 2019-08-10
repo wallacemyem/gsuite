@@ -184,7 +184,7 @@ class AccountsRepository implements AccountsRepositoryContract
     }
 
     /**
-     * Retrieve a list a created G-Suite accounts
+     * Retrieve a list G-Suite accounts in your domain
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/list
      *
@@ -200,14 +200,16 @@ class AccountsRepository implements AccountsRepositoryContract
         $parameters = array_merge($defaultParameters, $parameters);
 
         try {
-            if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.accounts.key'))) {
-                $accounts = $this->getCache(config('gsuite.cache.accounts.key'));
+            if ($this->shouldCache()) {
+                if ($this->checkCache($this->getCacheKey())) {
+                    $accounts = $this->getCache($this->getCacheKey());
+                } else {
+                    $accounts = $this->client->listUsers($parameters);
+    
+                    $this->putCache($this->getCacheKey(), $accounts);
+                }
             } else {
                 $accounts = $this->client->listUsers($parameters);
-
-                if ($this->shouldCache()) {
-                    $this->putCache(config('gsuite.cache.accounts.key'), $accounts, config('gsuite.cache.accounts.cache-time'));
-                }
             }
         } catch (\Exception $e) {
             throw $e;
@@ -248,11 +250,6 @@ class AccountsRepository implements AccountsRepositoryContract
         throw new \Exception("Error Processing Request", 1);
     }
 
-    public function checkEmailAvailability(string $email)
-    {
-        return true;
-    }
-
     /**
      * Suspend an account
      *
@@ -267,6 +264,17 @@ class AccountsRepository implements AccountsRepositoryContract
         }
 
         return $account;
+    }
+
+    /**
+     * Check the aviliablity of an email address
+     *
+     * @param $email
+     * @return bool
+     */
+    public function checkEmailAvailability(string $email)
+    {
+        return true;
     }
 
     /**
@@ -311,7 +319,7 @@ class AccountsRepository implements AccountsRepositoryContract
      *
      * @return string
      */
-    protected function getCacheKey(string $userKey)
+    protected function getCacheKey(string $userKey = null)
     {
         return config('gsuite.cache.accounts.key')($userKey) ? ':' . $userKey : '';
     }
