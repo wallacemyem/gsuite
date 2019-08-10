@@ -26,29 +26,23 @@ class GSuiteAccounts
         return new GSuiteAccount($this->repository->create($name, $email, $password));
     }
 
-    /**
-     * Get a single GSuite account
-     */
     public function get(string $email)
     {
-        $account = $this->repository->get($email);
-
-        return new GSuiteAccount($account);
+        return new GSuiteAccount($this->repository->get($email));
     }
 
-    /**
-     * Delete a single GSuite account
-     */
     public function delete(string $email)
     {
         return $this->repository->delete($email);
     }
 
     /**
-     * Get the client for user accounts
+     * Get the client for accounts
+     *
+     * @return \Google_Service_Directory_Resource_Users
      */
     public function getClient()
     {
-        return $this->repository;
+        return $this->repository->getClient();
     }
 }
