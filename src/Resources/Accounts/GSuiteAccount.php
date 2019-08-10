@@ -16,19 +16,31 @@ class GSuiteAccount
     public function __construct(\Google_Service_Directory_User $account)
     {
         $this->account = $account;
+
+        $this->accounts_repo = app('gsuite-accounts-repo');
     }
 
-    public function getEmail()
+    public function getPrimaryEmail()
     {
-        return $this->account->primaryEmail;
+        return $this->account->getPrimaryEmail();
     }
 
     public function getAliases()
     {
-        return $this->account->aliases;
+        return collect($this->account->getAliases());
+    }
+
+    public function addAliases(string $email)
+    {
+        //
     }
 
     public function suspend()
+    {
+        //
+    }
+
+    public function updateName(array $name)
     {
         //
     }

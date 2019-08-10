@@ -43,7 +43,7 @@ class GSuiteServiceProvider extends ServiceProvider
 
         // The base GSuite class
         $this->app->singleton('gsuite', function () {
-            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
+            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts'));
         });
 
         // G-Suite accounts repo
@@ -53,7 +53,7 @@ class GSuiteServiceProvider extends ServiceProvider
         
         // G-Suite accounts
         $this->app->singleton('gsuite-accounts', function () {
-            return new GSuiteAccounts(app('gsuite-account-repo'));
+            return new GSuiteAccounts(app('gsuite-accounts-repo'));
         });
         
         // Single G-Suite account
