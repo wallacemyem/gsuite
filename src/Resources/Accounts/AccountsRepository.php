@@ -321,7 +321,7 @@ class AccountsRepository implements AccountsRepositoryContract
      */
     protected function getCacheKey(string $userKey = null)
     {
-        return config('gsuite.cache.accounts.key')($userKey) ? ':' . $userKey : '';
+        return config('gsuite.cache.accounts.key') . ($userKey) ? ':' . $userKey : '';
     }
 
     protected function getCacheTime()

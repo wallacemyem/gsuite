@@ -12,6 +12,8 @@ class GroupsRepository implements GroupsRepositoryContract
 
     /**
      * Groups repo client
+     *
+     * @see Google_Service_Directory_Resource_Groups
      */
     protected $client;
 
@@ -25,16 +27,6 @@ class GroupsRepository implements GroupsRepositoryContract
         $this->client = $services->getService('groups');
 
         return $this;
-    }
-
-    /**
-     * Should the groups be cached
-     *
-     * @return bool
-     */
-    public function shouldCache()
-    {
-        return config('gsuite.cache.groups.should-cache');
     }
 
     /**
@@ -89,9 +81,6 @@ class GroupsRepository implements GroupsRepositoryContract
      */
     public function insert(string $email, string $name = '', string $description = '')
     {
-        /**
-         * Create the new Group
-         */
         $group = new \Google_Service_Directory_Group([
             'name' => $name,
             'email' => $email,
@@ -101,7 +90,7 @@ class GroupsRepository implements GroupsRepositoryContract
         try {
             $group = $this->client->insert($group);
 
-            $this->flushCache(config('gsuite.cache.groups.key'));
+            $this->flushCache();
         } catch (\Exception $e) {
             throw $e;
         }
@@ -137,5 +126,35 @@ class GroupsRepository implements GroupsRepositoryContract
     public function update(string $groupKey)
     {
         //
+    }
+
+    /**
+     * Should the groups be cached
+     *
+     * @return bool
+     */
+    public function shouldCache()
+    {
+        return config('gsuite.cache.groups.should-cache');
+    }
+
+    /**
+     * Get the proper key for caching results
+     *
+     * @return string
+     */
+    protected function getCacheKey(string $groupKey = null)
+    {
+        return config('gsuite.cache.groups.key') . ($groupKey) ? ':' . $groupKey : '';
+    }
+
+    /**
+     * Get the time to cache
+     *
+     * @return int
+     */
+    protected function getCacheTime()
+    {
+        return config('gsuite.cache.groups.cache-time');
     }
 }
