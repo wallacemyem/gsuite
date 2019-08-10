@@ -19,6 +19,10 @@ class SuspendAccount extends Command
     public function handle(SuspendAccountAction $suspendAccountAction)
     {
         $email = $this->ask('What is the primary email address of the account you would like to suspend?');
+                
+        if (!$this->confirm("Are you sure your would like to suspend: {$email}", false)) {
+            return;
+        }
 
         $this->info('Suspending account...');
 

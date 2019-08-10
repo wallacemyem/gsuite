@@ -2,14 +2,22 @@
 
 namespace Wyattcast44\GSuite;
 
-use Illuminate\Support\ServiceProvider;
-use Wyattcast44\GSuite\Clients\GoogleClient;
+// Commands
 use Wyattcast44\GSuite\Commands\CreateAccount;
-use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
+use Wyattcast44\GSuite\Commands\SuspendAccount;
+
+// Clients
+use Wyattcast44\GSuite\Clients\GoogleClient;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
+
+// Repos
 use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
+
+// Misc
+use Illuminate\Support\ServiceProvider;
+use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
+use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
 use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccounts;
 
 class GSuiteServiceProvider extends ServiceProvider
@@ -73,6 +81,7 @@ class GSuiteServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CreateAccount::class,
+                SuspendAccount::class,
             ]);
         }
     }
