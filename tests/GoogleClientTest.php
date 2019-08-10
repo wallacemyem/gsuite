@@ -2,7 +2,7 @@
 
 namespace Wyattcast44\Gsuite\Tests;
 
-use PHPUnit\Framework\TestCase;
+use Orchestra\Testbench\TestCase;
 
 class GoogleClientTest extends TestCase
 {
