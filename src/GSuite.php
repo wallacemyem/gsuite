@@ -7,13 +7,24 @@ use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
 class GSuite
 {
-    public function groups(GroupsRepository $repo)
+    protected $groups_repo;
+
+    protected $accounts_repo;
+
+    public function __construct(GroupsRepository $groups_repo, AccountsRepository $accounts_repo)
     {
-        return $repo;
+        $this->groups_repo = $groups_repo;
+
+        $this->accounts_repo = $accounts_repo;
     }
 
-    public function accounts(AccountsRepository $repo)
+    public function accounts()
     {
-        return $repo;
+        return $this->accounts_repo;
+    }
+    
+    public function groups()
+    {
+        return $this->groups_repo;
     }
 }

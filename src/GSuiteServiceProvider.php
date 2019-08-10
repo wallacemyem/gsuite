@@ -55,7 +55,7 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('gsuite', function () {
-            return new GSuite;
+            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
         });
     }
 }
