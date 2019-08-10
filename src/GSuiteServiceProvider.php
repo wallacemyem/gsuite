@@ -5,6 +5,7 @@ namespace Wyattcast44\GSuite;
 // Commands
 use Wyattcast44\GSuite\Commands\CreateAccount;
 use Wyattcast44\GSuite\Commands\SuspendAccount;
+use Wyattcast44\GSuite\Commands\UnsuspendAccount;
 
 // Clients
 use Wyattcast44\GSuite\Clients\GoogleClient;
@@ -82,6 +83,7 @@ class GSuiteServiceProvider extends ServiceProvider
             $this->commands([
                 CreateAccount::class,
                 SuspendAccount::class,
+                UnsuspendAccount::class,
             ]);
         }
     }

@@ -5,7 +5,7 @@ namespace Wyattcast44\GSuite\Actions;
 use Spatie\QueueableAction\QueueableAction;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
-class SuspendAccountAction
+class UnsuspendAccountAction
 {
     use QueueableAction;
 
@@ -18,6 +18,6 @@ class SuspendAccountAction
 
     public function execute(string $userKey)
     {
-        return $this->repository->suspend($userKey);
+        return $this->repository->unsuspend($userKey);
     }
 }
