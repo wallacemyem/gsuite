@@ -9,7 +9,9 @@
 
 This is a wrapper around the
 [Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
-manage your G-Suite account in your Laravel application.
+manage your G-Suite account in your Laravel application. There is an
+[example application](https://github.com/WyattCast44/gsuite-package-example) if
+you'd like to check that out.
 
 **_Warning: under active development, use at your own risk. A version will be
 tagged when ready for testing._**
