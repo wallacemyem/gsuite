@@ -4,6 +4,8 @@ This is a basic outline of the package, its architecture, etc.
 
 ## Commands
 
+### Accounts
+
 -   `CreateAccount`: `gsuite:create-account`
 -   `DeleteAccount`: `gsuite:delete-account`
 -   `SuspendAccount`: `gsuite:suspend-account`
@@ -13,10 +15,17 @@ This is a basic outline of the package, its architecture, etc.
 
 Actions are queueable classes that encapsulate logic and tasks.
 
+### Accounts
+
 -   `CreateAccountAction`
 -   `DeleteAccountAction`
 -   `SuspendAccountAction`
 -   `UnsuspendAccountAction`
+
+### Groups
+
+-   `CreateGroupAction`: `gsuite:create-group`
+-   `DeleteGroupAction`: `gsuite:delete-group`
 
 ## GSuite class
 
