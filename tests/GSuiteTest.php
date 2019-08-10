@@ -3,12 +3,12 @@
 namespace Wyattcast44\Gsuite\Tests;
 
 use Wyattcast44\GSuite\GSuite;
-use Orchestra\Testbench\TestCase;s
+use Orchestra\Testbench\TestCase;
 use Wyattcast44\GSuite\GSuiteServiceProvider;
-use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
+use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
-class GoogleClientTest extends TestCase
+class GSuiteTest extends TestCase
 {
     protected function getPackageProviders($app)
     {
