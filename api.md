@@ -1,5 +1,23 @@
 # G-Suite API Doc
 
+This is a basic outline of the package, its architecture, etc.
+
+## Commands
+
+-   `CreateAccount`: `gsuite:create-account`
+-   `DeleteAccount`: `gsuite:delete-account`
+-   `SuspendAccount`: `gsuite:suspend-account`
+-   `UnsuspendAccount`: `gsuite:unsuspend-account`
+
+## Actions
+
+Actions are queueable classes that encapsulate logic and tasks.
+
+-   `CreateAccountAction`
+-   `DeleteAccountAction`
+-   `SuspendAccountAction`
+-   `UnsuspendAccountAction`
+
 ## GSuite class
 
 The base class, primary means of interacting with package. Provides access to
