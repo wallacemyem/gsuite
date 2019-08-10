@@ -33,6 +33,20 @@ class AccountsRepository implements AccountsRepositoryContract
     const MAX_LAST_NAME_LENGTH = 60;
 
     /**
+     * G-Suite password min length
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
+     */
+    const MIN_PASSWORD_LENGTH = 8;
+
+    /**
+     * G-Suite password max length
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/insert
+     */
+    const MAX_PASSWORD_LENGTH = 100;
+
+    /**
      * Bootstrap the client
      *
      * @return self

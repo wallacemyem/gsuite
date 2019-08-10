@@ -50,8 +50,7 @@
             "aliases": {
                 "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade",
                 "GSuiteGroup": "Wyattcast44\\GSuite\\Facades\\GSuiteGroupFacade",
-                "GSuiteAccounts": "Wyattcast44\\GSuite\\Facades\\GSuiteAccountsFacade",
-                "GoogleServicesClient": "Wyattcast44\\GSuite\\Facades\\GoogleServicesClientFacade"
+                "GSuiteAccounts": "Wyattcast44\\GSuite\\Facades\\GSuiteAccountsFacade"
             }
         }
     }
