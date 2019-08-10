@@ -16,7 +16,7 @@ class UnsuspendAccount extends Command
      *
      * @return void
      */
-    public function handle(SuspendAccountAction $suspendAccountAction)
+    public function handle(UnsuspendAccountAction $unsuspendAccountAction)
     {
         $email = $this->ask('What is the primary email address of the account you would like to unsuspend?');
                 
@@ -27,7 +27,7 @@ class UnsuspendAccount extends Command
         $this->info('Unsuspending account...');
 
         try {
-            $suspendAccountAction->execute($email);
+            $unsuspendAccountAction->execute($email);
             
             $this->line('');
 

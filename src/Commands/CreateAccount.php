@@ -38,6 +38,8 @@ class CreateAccount extends Command
 
         try {
             $createAccountAction->execute($name, $email, $password, $resetPassword);
+
+            $this->line('');
             
             $this->info("Account created! Email address: {$email}");
         } catch (\Exception $e) {

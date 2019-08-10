@@ -28,6 +28,8 @@ class SuspendAccount extends Command
 
         try {
             $suspendAccountAction->execute($email);
+
+            $this->line('');
             
             $this->info('Account suspended!');
         } catch (\Exception $e) {
