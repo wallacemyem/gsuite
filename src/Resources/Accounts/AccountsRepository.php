@@ -6,7 +6,7 @@ use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Contracts\AccountsRepository as AccountsRepositoryContract;
 
-class AccountsRepo implements AccountsRepositoryContract
+class AccountsRepository implements AccountsRepositoryContract
 {
     use CachesResults;
 

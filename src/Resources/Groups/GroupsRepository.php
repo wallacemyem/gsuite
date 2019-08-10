@@ -6,7 +6,7 @@ use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Contracts\GroupsRepository as GroupsRepositoryContract;
 
-class GroupsRepo implements GroupsRepositoryContract
+class GroupsRepository implements GroupsRepositoryContract
 {
     use CachesResults;
 

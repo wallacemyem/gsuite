@@ -4,11 +4,11 @@ namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Clients\GoogleClient;
-use Wyattcast44\GSuite\Resources\Groups\GroupsRepo;
 use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Resources\Accounts\AccountsRepo;
 use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
+use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
+use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -39,7 +39,7 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('gsuite-accounts-repo', function () {
-            return new AccountsRepo(app('google-services'));
+            return new AccountsRepository(app('google-services'));
         });
 
         $this->app->singleton('gsuite-account', function () {
@@ -47,7 +47,7 @@ class GSuiteServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton('gsuite-groups-repo', function () {
-            return new GroupsRepo(app('google-services'));
+            return new GroupsRepository(app('google-services'));
         });
 
         $this->app->singleton('gsuite-group', function () {
