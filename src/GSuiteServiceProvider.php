@@ -9,6 +9,7 @@ use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
 use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
+use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccounts;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -30,32 +31,42 @@ class GSuiteServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/gsuite.php', 'gsuite');
     
+        // The base Google client
         $this->app->singleton('google-client', function () {
             return new GoogleClient;
         });
 
+        // The Google service resolver
         $this->app->singleton('google-services', function () {
             return new GoogleServicesClient(app('google-client'));
         });
 
+        // The base GSuite class
+        $this->app->singleton('gsuite', function () {
+            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
+        });
+
+        // G-Suite accounts repo
         $this->app->singleton('gsuite-accounts-repo', function () {
             return new AccountsRepository(app('google-services'));
         });
-
-        $this->app->singleton('gsuite-account', function () {
-            return new GSuiteAccount(app('gsuite-accounts-repo'));
+        
+        // G-Suite accounts
+        $this->app->singleton('gsuite-accounts', function () {
+            return new GSuiteAccounts(app('gsuite-account-repo'));
         });
-
+        
+        // Single G-Suite account
+        $this->app->bind('gsuite-account', function () {
+            return new GSuiteAccount(app('gsuite-accounts'));
+        });
+        
         $this->app->singleton('gsuite-groups-repo', function () {
             return new GroupsRepository(app('google-services'));
         });
 
         $this->app->singleton('gsuite-group', function () {
             return new GSuiteGroup(app('gsuite-groups-repo'));
-        });
-
-        $this->app->singleton('gsuite', function () {
-            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
         });
     }
 }

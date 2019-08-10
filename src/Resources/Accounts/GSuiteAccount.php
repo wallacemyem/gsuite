@@ -4,50 +4,32 @@ namespace Wyattcast44\GSuite\Resources\Accounts;
 
 class GSuiteAccount
 {
+    /**
+     * The account instance
+     *
+     * \Google_Service_Directory_User
+     */
+    protected $account;
+
     protected $accounts_repo;
 
-    public function __construct(AccountsRepo $repo)
+    public function __construct(\Google_Service_Directory_User $account)
     {
-        $this->accounts_repo = $repo;
+        $this->account = $account;
     }
 
-    /**
-     * Return a collection of all the accounts in your domain
-     */
-    public function all()
+    public function getEmail()
     {
-        return collect($this->accounts_repo->list()->users);
+        return $this->account->primaryEmail;
     }
 
-    /**
-     * Create a new GSuite account
-     */
-    public function create(array $name, string $email, string $password)
+    public function getAliases()
     {
-        return $this->accounts_repo->create($name, $email, $password);
+        return $this->account->aliases;
     }
 
-    /**
-     * Get a single GSuite account
-     */
-    public function get(string $email)
+    public function suspend()
     {
-        return $this->accounts_repo->get($email);
-    }
-
-    /**
-     * Delete a single GSuite account
-     */
-    public function delete(string $email)
-    {
-        return $this->accounts_repo->delete($email);
-    }
-
-    /**
-     * Get the client for user accounts
-     */
-    public function getClient()
-    {
-        return $this->accounts_repo;
+        //
     }
 }

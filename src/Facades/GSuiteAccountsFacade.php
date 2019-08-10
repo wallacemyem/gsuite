@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @see \Wyattcast44\Gsuite\Accounts\GSuiteAccount
  */
-class GSuiteAccountFacade extends Facade
+class GSuiteAccountsFacade extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -16,6 +16,6 @@ class GSuiteAccountFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'gsuite-account';
+        return 'gsuite-accounts';
     }
 }
