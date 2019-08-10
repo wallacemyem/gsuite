@@ -161,7 +161,13 @@ class GroupsRepository implements GroupsRepositoryContract
      */
     protected function getCacheKey(string $groupKey = null)
     {
-        return config('gsuite.cache.groups.key') . ($groupKey) ? ':' . $groupKey : '';
+        $key = config('gsuite.cache.groups.key');
+
+        if ($groupKey) {
+            $key = $key . ":{$groupKey}";
+        }
+        
+        return $key;
     }
 
     /**

@@ -74,7 +74,13 @@ class AccountsRepository implements AccountsRepositoryContract
             throw $e;
         }
 
-        return ($response->getStatusCode() == 204) ? true : false;
+        if ($response->getStatusCode() == 204) {
+            $this->flushCache();
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -176,6 +182,8 @@ class AccountsRepository implements AccountsRepositoryContract
          */
         try {
             $account = $this->client->insert($google_user);
+
+            $this->flushCache();
         } catch (\Exception $e) {
             throw $e;
         }
@@ -321,7 +329,13 @@ class AccountsRepository implements AccountsRepositoryContract
      */
     protected function getCacheKey(string $userKey = null)
     {
-        return config('gsuite.cache.accounts.key') . ($userKey) ? ':' . $userKey : '';
+        $key =  config('gsuite.cache.accounts.key');
+
+        if ($userKey) {
+            $key = $key . ":{$userKey}";
+        }
+        
+        return $key;
     }
 
     protected function getCacheTime()

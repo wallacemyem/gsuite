@@ -17,7 +17,8 @@ This is a basic outline of the package, its architecture, etc.
 
 ## Actions
 
-Actions are queueable classes that encapsulate logic and tasks.
+Actions are queueable classes that encapsulate logic and tasks. After applicable
+actions, the cache will be flushed.
 
 ### Accounts
 
