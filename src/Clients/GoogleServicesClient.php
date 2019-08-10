@@ -2,9 +2,7 @@
 
 namespace Wyattcast44\GSuite\Clients;
 
-use Wyattcast44\GSuite\Contracts\ClientContract;
-
-class GoogleServicesClient implements ClientContract
+class GoogleServicesClient
 {
     /**
      * The \Google_Service_Directory instance
