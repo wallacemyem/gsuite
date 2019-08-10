@@ -4,9 +4,9 @@ namespace Wyattcast44\GSuite\Resources\Groups;
 
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Contracts\GroupsRepoContract;
+use Wyattcast44\GSuite\Contracts\GroupsRepository as GroupsRepositoryContract;
 
-class GroupsRepo implements GroupsRepoContract
+class GroupsRepo implements GroupsRepositoryContract
 {
     use CachesResults;
 

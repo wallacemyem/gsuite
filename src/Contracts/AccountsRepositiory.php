@@ -2,7 +2,7 @@
 
 namespace Wyattcast44\GSuite\Contracts;
 
-interface AccountsRepoContract
+interface AccountsRepository
 {
     public function delete(string $userKey);
     

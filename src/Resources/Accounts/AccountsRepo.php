@@ -4,9 +4,9 @@ namespace Wyattcast44\GSuite\Resources\Accounts;
 
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Contracts\AccountsRepoContract;
+use Wyattcast44\GSuite\Contracts\AccountsRepository as AccountsRepositoryContract;
 
-class AccountsRepo implements AccountsRepoContract
+class AccountsRepo implements AccountsRepositoryContract
 {
     use CachesResults;
 

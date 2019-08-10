@@ -2,7 +2,7 @@
 
 namespace Wyattcast44\GSuite\Contracts;
 
-interface GroupsRepoContract
+interface GroupsRepository
 {
     public function delete(string $groupKey);
     
