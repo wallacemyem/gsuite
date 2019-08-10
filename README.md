@@ -60,41 +60,41 @@ GOOGLE_SERVICE_ACCOUNT=email@domain.com
 
 ```php
 // Create a new G-Suite account
-GSuiteAccount::create(['John', 'Doe'], 'john.doe@example.com', 'default-password');
+GSuite::accounts()->create(['John', 'Doe'], 'john.doe@example.com', 'default-password');
 
 // Get a G-Suite account
-GSuiteAccount::get('john.doe@example.com');
+GSuite::accounts()->get('john.doe@example.com');
 
 // Get a collection of all G-Suite accounts in your domain
-GSuiteAccount::all();
+GSuite::accounts()->all();
 
 // Delete a G-Suite account
-GSuiteAccount::delete('john.doe@example.com');
+GSuite::accounts()->delete('john.doe@example.com');
 
 // Suspend a G-Suite account
-GSuiteAccount::suspend('john.doe@example.com');
+GSuite::accounts()->suspend('john.doe@example.com');
 
 // Add an alias to a G-Suite account
-GSuiteAccount::alias('john.doe@example.com', 'support@example.com');
+GSuite::accounts()->alias('john.doe@example.com', 'support@example.com');
 ```
 
 ### G-Suite Group Management
 
 ```php
 // Create a new G-Suite group
-GSuiteGroup::create('Group Name', 'group.email@example.com', 'Group description');
+GSuite::groups->create('Group Name', 'group.email@example.com', 'Group description');
 
 // Get a G-Suite group
-GSuiteGroup::get('group.email@example.com');
+GSuite::groups->get('group.email@example.com');
 
 // Get a collection of all G-Suite groups in your domain
-GSuiteGroup::all();
+GSuite::groups->all();
 
 // Delete a G-Suite group
-GSuiteGroup::delete('group.example@example.com');
+GSuite::groups->delete('group.example@example.com');
 
 // Add a member to a G-Suite group
-GSuiteGroup::addMember('group.email@example.com', 'john.doe@example.com');
+GSuite::groups->addMember('group.email@example.com', 'john.doe@example.com');
 ```
 
 ### Other Resources

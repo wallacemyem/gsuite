@@ -7,6 +7,9 @@ use Orchestra\Testbench\TestCase;
 use Wyattcast44\GSuite\GSuiteServiceProvider;
 use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
+use Wyattcast44\GSuite\Actions\CreateAccountAction;
+use Illuminate\Support\Str;
+use Wyattcast44\GSuite\Actions\DeleteAccountAction;
 
 class ActionsTest extends TestCase
 {
@@ -17,25 +20,22 @@ class ActionsTest extends TestCase
         ];
     }
 
-    protected function getApplicationAliases($app)
+    public function test_accounts_can_be_created(CreateAccountAction $createAccountAction, DeleteAccountAction $deleteAccountAction)
     {
-        return [
-            GSuite::class
-        ];
-    }
+        // Given we have the parameters for a new account
+        $name = ['first_name' => 'Test', 'last_name' => 'Tester'];
 
-    public function test_the_base_class_can_be_resolved()
-    {
-        $this->assertInstanceOf(GSuite::class, app('gsuite'));
-    }
+        $email = "test.tester@{config('gsuite.domain'}";
 
-    public function test_the_base_class_can_return_the_accounts_repo()
-    {
-        $this->assertInstanceOf(AccountsRepository::class, app('gsuite')->accounts());
-    }
-    
-    public function test_the_base_class_can_return_the_groups_repo()
-    {
-        $this->assertInstanceOf(GroupsRepository::class, app('gsuite')->groups());
+        $password = Str::random(16);
+
+        // When you call the CreateAccountAction
+        $account = $createAccountAction->execute($name, $email, $password);
+
+        // A \Google_Service_User should be returned
+        $this->assertInstanceOf(\Google_Service_User::class, $account);
+
+        // Let's clean up and delete the account
+        $deleteAccountAction->execute($email);
     }
 }
