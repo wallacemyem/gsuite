@@ -2,10 +2,10 @@
 
 namespace Wyattcast44\GSuite\Resources\Accounts;
 
+use Illuminate\Support\Arr;
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
-use Wyattcast44\GSuite\Contracts\AccountsRepository as AccountsRepositoryContract;
-use Illuminate\Support\Arr;
+use Wyattcast44\GSuite\Contracts\AccountsRepositoryContract;
 
 class AccountsRepository implements AccountsRepositoryContract
 {

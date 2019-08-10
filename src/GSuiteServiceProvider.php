@@ -54,9 +54,9 @@ class GSuiteServiceProvider extends ServiceProvider
             return new GoogleServicesClient(app('google-client'));
         });
 
-        // The base GSuite class
+        // The base G-Suite class
         $this->app->singleton('gsuite', function () {
-            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts'));
+            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
         });
 
         // G-Suite accounts repo
@@ -64,22 +64,9 @@ class GSuiteServiceProvider extends ServiceProvider
             return new AccountsRepository(app('google-services'));
         });
         
-        // G-Suite accounts
-        $this->app->singleton('gsuite-accounts', function () {
-            return new GSuiteAccounts(app('gsuite-accounts-repo'));
-        });
-        
-        // Single G-Suite account
-        $this->app->bind('gsuite-account', function () {
-            return new GSuiteAccount(app('gsuite-accounts'));
-        });
-        
+        // G-Suite groups repo
         $this->app->singleton('gsuite-groups-repo', function () {
             return new GroupsRepository(app('google-services'));
-        });
-
-        $this->app->singleton('gsuite-group', function () {
-            return new GSuiteGroup(app('gsuite-groups-repo'));
         });
 
         if ($this->app->runningInConsole()) {
