@@ -5,6 +5,7 @@ namespace Wyattcast44\GSuite\Resources\Accounts;
 use Wyattcast44\GSuite\Traits\CachesResults;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Contracts\AccountsRepository as AccountsRepositoryContract;
+use Illuminate\Support\Arr;
 
 class AccountsRepository implements AccountsRepositoryContract
 {
@@ -130,7 +131,7 @@ class AccountsRepository implements AccountsRepositoryContract
      * @param string $email | The desired email address for the new account, ex joe@email.com
      * @param string $password | The desired default password
      * @param bool $changePasswordNextLogin | Default true
-     * @return \Google_Service_User
+     * @return \Google_Service_Directory_User
      */
     public function insert(array $name, string $email, string $password, bool $changePasswordNextLogin = true)
     {
@@ -166,7 +167,7 @@ class AccountsRepository implements AccountsRepositoryContract
         /**
          * Create and configure the new Google User
          */
-        $google_user = tap(new \GoogleServiceUser, function ($google_user) use ($directory_name, $email, $password, $changePasswordNextLogin) {
+        $google_user = tap(new \Google_Service_Directory_User, function ($google_user) use ($directory_name, $email, $password, $changePasswordNextLogin) {
             $google_user->setName($directory_name);
             $google_user->setPrimaryEmail($email);
             $google_user->setPassword($password);
@@ -178,6 +179,8 @@ class AccountsRepository implements AccountsRepositoryContract
          */
         try {
             $account = $this->client->insert($google_user);
+        } catch (\Google_Service_Exception $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw $e;
         }

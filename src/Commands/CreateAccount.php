@@ -13,16 +13,6 @@ class CreateAccount extends Command
     protected $description = 'Create a new G-Suite account';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return void
@@ -44,6 +34,16 @@ class CreateAccount extends Command
 
         $resetPassword = $this->confirm('Would you like the user to reset their password at next login?', true);
 
-        $createAccountAction->execute($name, $email, $password, $resetPassword);
+        $this->info('Creating new account...');
+
+        try {
+            $createAccountAction->execute($name, $email, $password, $resetPassword);
+            
+            $this->info("Account created! Email address: {$email}");
+        } catch (\Exception $e) {
+            logger($e);
+
+            $this->error('An error has occured and was logged, please try again later, or talk to an admin.');
+        }
     }
 }
