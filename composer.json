@@ -18,7 +18,8 @@
     "require": {
         "php": "^7.1",
         "google/apiclient": "^2.2",
-        "illuminate/support": "5.8.*"
+        "illuminate/support": "5.8.*",
+        "spatie/laravel-queueable-action": "^2.1"
     },
     "require-dev": {
         "orchestra/testbench": "3.8.*",
