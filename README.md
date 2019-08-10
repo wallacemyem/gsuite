@@ -82,19 +82,19 @@ GSuite::accounts()->alias('john.doe@example.com', 'support@example.com');
 
 ```php
 // Create a new G-Suite group
-GSuite::groups->create('Group Name', 'group.email@example.com', 'Group description');
+GSuite::groups()->create('Group Name', 'group.email@example.com', 'Group description');
 
 // Get a G-Suite group
-GSuite::groups->get('group.email@example.com');
+GSuite::groups()->get('group.email@example.com');
 
 // Get a collection of all G-Suite groups in your domain
-GSuite::groups->all();
+GSuite::groups()->all();
 
 // Delete a G-Suite group
-GSuite::groups->delete('group.example@example.com');
+GSuite::groups()->delete('group.example@example.com');
 
 // Add a member to a G-Suite group
-GSuite::groups->addMember('group.email@example.com', 'john.doe@example.com');
+GSuite::groups()->addMember('group.email@example.com', 'john.doe@example.com');
 ```
 
 ### Other Resources
