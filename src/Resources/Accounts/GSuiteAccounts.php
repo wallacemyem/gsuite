@@ -14,9 +14,6 @@ class GSuiteAccounts
         $this->repository = $repository;
     }
 
-    /**
-     * Return a collection of all the accounts in your domain
-     */
     public function all()
     {
         return collect($this->repository->list()->users)->map(function ($account) {
@@ -24,12 +21,9 @@ class GSuiteAccounts
         });
     }
 
-    /**
-     * Create a new GSuite account
-     */
     public function create(array $name, string $email, string $password)
     {
-        return $this->repository->create($name, $email, $password);
+        return new GSuiteAccount($this->repository->create($name, $email, $password));
     }
 
     /**
@@ -37,7 +31,9 @@ class GSuiteAccounts
      */
     public function get(string $email)
     {
-        return $this->repository->get($email);
+        $account = $this->repository->get($email);
+
+        return new GSuiteAccount($account);
     }
 
     /**

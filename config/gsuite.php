@@ -46,7 +46,7 @@ return [
     | Your GSuite domain
     |
     */
-    'domain' => 'business.com',
+    'domain' => 'example.com',
     
     /*
     |--------------------------------------------------------------------------
