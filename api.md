@@ -24,8 +24,8 @@ Actions are queueable classes that encapsulate logic and tasks.
 
 ### Groups
 
--   `CreateGroupAction`: `gsuite:create-group`
--   `DeleteGroupAction`: `gsuite:delete-group`
+-   `CreateGroupAction`
+-   `DeleteGroupAction`
 
 ## GSuite class
 
