@@ -130,7 +130,7 @@ class AccountsRepository implements AccountsRepositoryContract
      * @param string $email | The desired email address for the new account, ex joe@email.com
      * @param string $password | The desired default password
      * @param bool $changePasswordNextLogin | Default true
-     * @return \GoogleServiceUser
+     * @return \Google_Service_User
      */
     public function insert(array $name, string $email, string $password, bool $changePasswordNextLogin = true)
     {

@@ -2,9 +2,9 @@
 
 namespace Wyattcast44\GSuite\Commands;
 
+use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Wyattcast44\GSuite\Actions\CreateAccountAction;
-use Illuminate\Support\Str;
 
 class CreateAccount extends Command
 {
@@ -30,8 +30,8 @@ class CreateAccount extends Command
     public function handle(CreateAccountAction $createAccountAction)
     {
         $name = [
-            'first_name' => $this->ask('What is the last name for the account?'),
-            'last_name' => $this->ask('What is the first name for the account?')
+            'first_name' => $this->ask('What is the first name for the account?'),
+            'last_name' => $this->ask('What is the last name for the account?')
         ];
 
         $email = $this->ask('What should the primary email address be?');

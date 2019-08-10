@@ -23,7 +23,7 @@ class GSuiteAccounts
 
     public function create(array $name, string $email, string $password)
     {
-        return new GSuiteAccount($this->repository->create($name, $email, $password));
+        return new GSuiteAccount($this->repository->insert($name, $email, $password));
     }
 
     public function get(string $email)

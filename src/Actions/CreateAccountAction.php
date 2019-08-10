@@ -3,7 +3,6 @@
 namespace Wyattcast44\GSuite\Actions;
 
 use Spatie\QueueableAction\QueueableAction;
-use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
 class CreateAccountAction
