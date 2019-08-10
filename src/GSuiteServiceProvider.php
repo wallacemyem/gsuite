@@ -4,6 +4,7 @@ namespace Wyattcast44\GSuite;
 
 // Commands
 use Wyattcast44\GSuite\Commands\CreateAccount;
+use Wyattcast44\GSuite\Commands\DeleteAccount;
 use Wyattcast44\GSuite\Commands\SuspendAccount;
 use Wyattcast44\GSuite\Commands\UnsuspendAccount;
 
@@ -82,6 +83,7 @@ class GSuiteServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CreateAccount::class,
+                DeleteAccount::class,
                 SuspendAccount::class,
                 UnsuspendAccount::class,
             ]);
