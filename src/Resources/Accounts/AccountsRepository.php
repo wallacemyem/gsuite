@@ -140,6 +140,13 @@ class AccountsRepository implements AccountsRepositoryContract
         }
 
         /**
+         * Ensure password meets length requirements
+         */
+        if (strlen($password) < self::MIN_PASSWORD_LENGTH || strlen($password) > self::MAX_PASSWORD_LENGTH) {
+            throw new \Exception("Password must be between 8 and 100 characters", 1);
+        }
+
+        /**
          * Check email availability
          */
         if (!$this->checkEmailAvailability($email)) {
@@ -169,8 +176,6 @@ class AccountsRepository implements AccountsRepositoryContract
          */
         try {
             $account = $this->client->insert($google_user);
-        } catch (\Google_Service_Exception $e) {
-            throw $e;
         } catch (\Exception $e) {
             throw $e;
         }
