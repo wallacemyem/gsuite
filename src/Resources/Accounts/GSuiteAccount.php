@@ -30,6 +30,11 @@ class GSuiteAccount
         return collect($this->account->getAliases());
     }
 
+    public function getId()
+    {
+        return $this->account->getId();
+    }
+
     public function addAliases(string $email)
     {
         //

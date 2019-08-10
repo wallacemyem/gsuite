@@ -254,4 +254,12 @@ class AccountsRepository implements AccountsRepositoryContract
     {
         return true;
     }
+
+    /**
+     * @return \Google_Service_Directory_User
+     */
+    public function suspend($userKey)
+    {
+        return $this->client->update($userKey, new \Google_Service_Directory_User(['suspended' => false]));
+    }
 }
