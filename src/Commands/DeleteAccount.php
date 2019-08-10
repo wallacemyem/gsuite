@@ -7,9 +7,9 @@ use Wyattcast44\GSuite\Actions\DeleteAccountAction;
 
 class DeleteAccount extends Command
 {
-    protected $signature = 'gsuite:suspend-account';
+    protected $signature = 'gsuite:delete-account';
 
-    protected $description = 'Suspend a G-Suite account';
+    protected $description = 'Delete a G-Suite account';
 
     /**
      * Execute the console command.

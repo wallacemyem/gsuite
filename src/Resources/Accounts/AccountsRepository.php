@@ -78,7 +78,7 @@ class AccountsRepository implements AccountsRepositoryContract
             $response = $this->client->delete($userKey);
 
             $this->flushCache(config('gsuite.cache.accounts.key'));
-            $this->flushCache(config('gsuite.cache.accounts.key' . ':' . $userKey));
+            $this->flushCache(config('gsuite.cache.accounts.key'). ':' . $userKey);
         } catch (\Exception $e) {
             throw new \Exception("Error deleting account with key: {$userKey}.", 1);
         }
