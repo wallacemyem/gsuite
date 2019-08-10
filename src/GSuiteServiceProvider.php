@@ -4,6 +4,7 @@ namespace Wyattcast44\GSuite;
 
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Clients\GoogleClient;
+use Wyattcast44\GSuite\Commands\CreateAccount;
 use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
 use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
@@ -68,5 +69,11 @@ class GSuiteServiceProvider extends ServiceProvider
         $this->app->singleton('gsuite-group', function () {
             return new GSuiteGroup(app('gsuite-groups-repo'));
         });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CreateAccount::class,
+            ]);
+        }
     }
 }
