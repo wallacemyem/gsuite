@@ -99,33 +99,49 @@ class GroupsRepository implements GroupsRepositoryContract
     }
 
     /**
+     * Get a list of all groups in your domain
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/groups/list
      */
     public function list()
     {
-        if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.groups.key'))) {
-            $groups = $this->getCache(config('gsuite.cache.groups.key'));
-        } else {
-            try {
-                $groups = $this->client->listGroups(['domain' => config('gsuite.domain')])->groups;
+        try {
+            if ($this->shouldCache()) {
+                if ($this->checkCache($this->getCacheKey())) {
+                    $groups = $this->getCache($this->getCacheKey());
+                } else {
+                    $groups = $this->client->listGroups(['domain' => config('gsuite.domain')])->groups;
 
-                if ($this->shouldCache()) {
-                    $this->putCache(config('gsuite.cache.groups.key'), $groups, config('gsuite.cache.groups.cache-time'));
+                    $this->putCache($this->getCacheKey(), $groups);
                 }
-            } catch (\Exception $e) {
-                throw \Exception("Error retriving groups.", 1);
+            } else {
+                $groups = $this->client->listGroups(['domain' => config('gsuite.domain')])->groups;
             }
+        } catch (\Exception $e) {
+            throw \Exception("Error retriving groups.", 1);
         }
 
         return $groups;
     }
 
     /**
+     * Update a groups name or description
+     *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/groups/update
      */
-    public function update(string $groupKey)
+    public function update(string $groupKey, string $name = '', string $desciption = '')
     {
-        //
+        $group = tap(new \Google_Service_Directory_Group, function ($group) use ($name, $desciption) {
+            if ($name <> '') {
+                $group->setName($name);
+            }
+
+            if ($desciption <> '') {
+                $group->serDescription($desciption);
+            }
+        });
+
+        return $this->client->update($groupKey, $group);
     }
 
     /**
