@@ -14,7 +14,7 @@ class AccountsRepository implements AccountsRepositoryContract
     /**
      * The accounts client
      *
-     * \Google_Service_Directory_Resource_Users
+     * @see \Google_Service_Directory_Resource_Users
      */
     protected $client;
 
@@ -59,27 +59,7 @@ class AccountsRepository implements AccountsRepositoryContract
     }
 
     /**
-     * Get the configured client
-     *
-     * @return \Google_Service_Directory_Resource_Users
-     */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * Should the accounts be cached
-     *
-     * @return bool
-     */
-    public function shouldCache()
-    {
-        return config('gsuite.cache.accounts.should-cache');
-    }
-
-    /**
-     * Delete an account
+     * Delete a G-Suite account
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/delete
      *
@@ -90,11 +70,8 @@ class AccountsRepository implements AccountsRepositoryContract
     {
         try {
             $response = $this->client->delete($userKey);
-
-            $this->flushCache(config('gsuite.cache.accounts.key'));
-            $this->flushCache(config('gsuite.cache.accounts.key'). ':' . $userKey);
         } catch (\Exception $e) {
-            throw new \Exception("Error deleting account with key: {$userKey}.", 1);
+            throw $e;
         }
 
         return ($response->getStatusCode() == 204) ? true : false;
@@ -106,31 +83,30 @@ class AccountsRepository implements AccountsRepositoryContract
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/get
      *
      * @param string $userKey | The accounts primary email address, an alias email, or unique user id
-     * @param string $projection | Options: basic, custom, full, Default: full
+     * @param string $projection | Options: basic, full, Default: full
      * @param string $viewType | Options: admin_view, domain_public, Default: admin_view
      * @return \Google_Service_Directory_User
      */
-    public function get(string $userKey, string $projection = 'full', string $viewType = 'admin_view', $customFieldMask = '')
+    public function get(string $userKey, string $projection = 'full', string $viewType = 'admin_view')
     {
-        if ($projection === 'custom' && $customFieldMask === '') {
-            throw new \Exception("Error retriving account for user key: {$userKey}, when using {$projection}, ensure you set the customFieldMask parameter.", 1);
+        if (!in_array($projection, array('basic', 'full'))) {
+            throw new \Exception("The projection must be either 'basic' or 'full'.", 1);
         }
 
-        try {
-            if ($this->shouldCache() && $this->checkCache(config('gsuite.cache.accounts.key') . ':' . $userKey)) {
-                $account = $this->getCache(config('gsuite.cache.accounts.key') . ':' . $userKey);
-            } else {
-                $account = $this->client->get($userKey, [
-                    'projection' => $projection,
-                    'viewType' => $viewType,
-                ]);
+        if (!in_array($viewType, array('admin_view', 'domain_public'))) {
+            throw new \Exception("The view type must be either 'admin_view' or 'domain_public'.", 1);
+        }
 
-                if ($this->shouldCache()) {
-                    $this->putCache(config('gsuite.cache.accounts.key') . ':' . $userKey, $account, config('gsuite.cache.accounts.cache-time'));
-                }
+        if ($this->shouldCache()) {
+            if ($this->checkCache($this->getCacheKey($userKey))) {
+                $account = $this->getCache($this->getCacheKey($userKey));
+            } else {
+                $account = $this->client->get($userKey, ['projection' => $projection, 'viewType' => $viewType]);
+
+                $this->putCache($this->getCacheKey($userKey), $account);
             }
-        } catch (\Exception $e) {
-            throw new \Exception("Error retriving account.", 1);
+        } else {
+            $account = $this->client->get($userKey, ['projection' => $projection, 'viewType' => $viewType]);
         }
 
         return $account;
@@ -302,5 +278,41 @@ class AccountsRepository implements AccountsRepositoryContract
         }
 
         return $account;
+    }
+
+    /**
+     * Get the configured client,
+     * useful if you need to write any custom functionality
+     *
+     * @return \Google_Service_Directory_Resource_Users
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Should the accounts be cached
+     *
+     * @return bool
+     */
+    protected function shouldCache()
+    {
+        return config('gsuite.cache.accounts.should-cache');
+    }
+
+    /**
+     * Get the proper key for caching results
+     *
+     * @return string
+     */
+    protected function getCacheKey(string $userKey)
+    {
+        return config('gsuite.cache.accounts.key')($userKey) ? ':' . $userKey : '';
+    }
+
+    protected function getCacheTime()
+    {
+        return config('gsuite.cache.accounts.cache-time');
     }
 }

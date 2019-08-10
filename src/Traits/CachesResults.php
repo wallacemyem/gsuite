@@ -11,9 +11,9 @@ trait CachesResults
         return Cache::has($key);
     }
 
-    public function flushCache(string $key)
+    public function flushCache()
     {
-        return Cache::forget($key);
+        return Cache::forget($this->getCacheKey());
     }
 
     protected function getCache(string $key, $default = [])
@@ -21,8 +21,8 @@ trait CachesResults
         return Cache::get($key, $default);
     }
 
-    protected function putCache(string $key, $data, $time)
+    protected function putCache(string $key, $data)
     {
-        return Cache::put($key, $data, $time);
+        return Cache::put($key, $data, $this->getCacheTime());
     }
 }
