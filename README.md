@@ -56,6 +56,10 @@ GOOGLE_SERVICE_ACCOUNT=email@domain.com
 
 4. Change cache settings as desired in config file
 
+5. Add any accounts, alias, or groups that you want to disable the ability to
+   delete. Used to ensure no one can delete your service account. You can still
+   delete them manually via the G-Suite Administrator interface.
+
 ## Usage
 
 ### G-Suite Account Management
@@ -106,7 +110,7 @@ results, request times will be lengthy. The cache will automatically flush when
 you delete, insert, or update resources. You can flush the cache at any time,
 see examples below.
 
-````php
+```php
 // Flush accounts and groups cache
 GSuite::flushCache();
 
@@ -130,7 +134,7 @@ You can get a api client for the org units like so:
 
 ```php
 $client = GSuiteServicesClient::getService('orgunit');
-````
+```
 
 ### Testing
 
