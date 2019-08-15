@@ -58,11 +58,11 @@ return [
     'cache' => [
         
         'accounts' => [
-            'should-cache' => true,
+            'cache' => true,
 
             'key' => 'gsuite:accounts',
             
-            'cache-time' => 600, // seconds
+            'time' => 600, // seconds
         ],
 
         'groups' => [

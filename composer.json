@@ -48,9 +48,7 @@
                 "Wyattcast44\\GSuite\\GSuiteServiceProvider"
             ],
             "aliases": {
-                "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade",
-                "GSuiteGroup": "Wyattcast44\\GSuite\\Facades\\GSuiteGroupFacade",
-                "GSuiteAccounts": "Wyattcast44\\GSuite\\Facades\\GSuiteAccountsFacade"
+                "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade"
             }
         }
     }

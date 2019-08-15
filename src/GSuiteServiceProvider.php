@@ -19,9 +19,6 @@ use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
 // Misc
 use Illuminate\Support\ServiceProvider;
-use Wyattcast44\GSuite\Resources\Groups\GSuiteGroup;
-use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccount;
-use Wyattcast44\GSuite\Resources\Accounts\GSuiteAccounts;
 use Wyattcast44\GSuite\Commands\DeleteGroup;
 
 class GSuiteServiceProvider extends ServiceProvider

@@ -4,9 +4,6 @@ namespace Wyattcast44\GSuite\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-/**
- * @see \Wyattcast44\Gsuite\Accounts\GSuiteAccount
- */
 class GSuiteFacade extends Facade
 {
     /**

@@ -63,7 +63,6 @@ class AccountsRepository implements AccountsRepositoryContract
      *
      * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/delete
      *
-     * @param string $userKey | The email address of the account to delete
      * @return bool
      */
     public function delete(string $userKey)
@@ -245,17 +244,14 @@ class AccountsRepository implements AccountsRepositoryContract
     }
 
     /**
-     * Updates an accounts information
+     * Check the aviliablity of an email address
      *
-     * @todo Experiment with how this works
-     *
-     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/update
-     *
-     * @param string $userKey | The accounts primary email address, an alias email, or unique user id
+     * @param $email
+     * @return bool
      */
-    public function update(string $userKey, array $parameters = [])
+    public function checkEmailAvailability(string $email)
     {
-        throw new \Exception("Error Processing Request", 1);
+        return true;
     }
 
     /**
@@ -272,17 +268,6 @@ class AccountsRepository implements AccountsRepositoryContract
         }
 
         return $account;
-    }
-
-    /**
-     * Check the aviliablity of an email address
-     *
-     * @param $email
-     * @return bool
-     */
-    public function checkEmailAvailability(string $email)
-    {
-        return true;
     }
 
     /**
@@ -319,7 +304,7 @@ class AccountsRepository implements AccountsRepositoryContract
      */
     protected function shouldCache()
     {
-        return config('gsuite.cache.accounts.should-cache');
+        return config('gsuite.cache.accounts.cache');
     }
 
     /**
@@ -340,6 +325,6 @@ class AccountsRepository implements AccountsRepositoryContract
 
     protected function getCacheTime()
     {
-        return config('gsuite.cache.accounts.cache-time');
+        return config('gsuite.cache.accounts.time');
     }
 }
