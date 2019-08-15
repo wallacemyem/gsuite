@@ -67,6 +67,10 @@ class AccountsRepository implements AccountsRepositoryContract
      */
     public function delete(string $userKey)
     {
+        if (in_array($userKey, config('gsuite.undeletable.accounts'))) {
+            throw new Exception("Unable to delete account, disabled by admin.", 1);
+        }
+
         try {
             $response = $this->client->delete($userKey);
         } catch (\Exception $e) {

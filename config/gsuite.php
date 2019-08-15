@@ -73,5 +73,20 @@ return [
             'time' => 600, //seconds
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Undeletable
+    |--------------------------------------------------------------------------
+    | Accounts and Groups that you don't want anyone to be able to delete
+    |
+    */
+    'undeletable' => [
+        
+        'accounts' => [],
+
+        'groups' => []
+        
+    ]
     
 ];
