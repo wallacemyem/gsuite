@@ -66,11 +66,11 @@ return [
         ],
 
         'groups' => [
-            'should-cache' => true,
+            'cache' => true,
             
             'key' => 'gsuite:groups',
 
-            'cache-time' => 600, //seconds
+            'time' => 600, //seconds
         ],
     ],
     
