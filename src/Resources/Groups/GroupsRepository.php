@@ -67,7 +67,7 @@ class GroupsRepository implements GroupsRepositoryContract
                     $this->putCache(config('gsuite.cache.groups.key') . ':' . $groupKey, $group, config('gsuite.cache.groups.cache-time'));
                 }
             } catch (\Exception $e) {
-                throw \Exception("Error retriving group with key: {$groupKey}.", 1);
+                throw $e;
             }
         }
 
