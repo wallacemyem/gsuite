@@ -64,7 +64,7 @@ class GroupsRepository implements GroupsRepositoryContract
                 $group = $this->client->get($groupKey);
 
                 if ($this->shouldCache()) {
-                    $this->putCache(config('gsuite.cache.groups.key') . ':' . $groupKey, $group, config('gsuite.cache.groups.cache-time'));
+                    $this->putCache(config('gsuite.cache.groups.key') . ':' . $groupKey, $group, config('gsuite.cache.groups.time'));
                 }
             } catch (\Exception $e) {
                 throw $e;
