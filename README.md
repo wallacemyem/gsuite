@@ -84,7 +84,7 @@ GSuite::accounts()->alias('john.doe@example.com', 'support@example.com');
 
 ```php
 // Create a new G-Suite group
-GSuite::groups()->create('Group Name', 'group.email@example.com', 'Group description');
+GSuite::groups()->create('group.email@example.com', 'Group Name', 'Group description');
 
 // Get a G-Suite group
 GSuite::groups()->get('group.email@example.com');
@@ -99,6 +99,27 @@ GSuite::groups()->delete('group.example@example.com');
 GSuite::groups()->addMember('group.email@example.com', 'john.doe@example.com');
 ```
 
+### Caching
+
+By default `accounts` and `groups` are cached. If you choose not to cache
+results, request times will be lengthy. The cache will automatically flush when
+you delete, insert, or update resources. You can flush the cache at any time,
+see examples below.
+
+````php
+// Flush accounts and groups cache
+GSuite::flushCache();
+
+// Flush only accounts cache
+GSuite::accounts()->flushCache();
+
+// Flush only groups cache
+GSuite::groups()->flushCache();
+
+// Via the CLI
+php artisan gsuite:flush-cache
+```
+
 ### Other Resources
 
 You can use the `GoogleServicesClient` class to get api clients for other google
@@ -109,7 +130,7 @@ You can get a api client for the org units like so:
 
 ```php
 $client = GSuiteServicesClient::getService('orgunit');
-```
+````
 
 ### Testing
 

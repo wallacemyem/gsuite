@@ -33,4 +33,16 @@ class GSuite
     {
         return $this->groups_repo;
     }
+
+    /**
+     * return void
+     */
+    public function flushCache()
+    {
+        $this->groups()->flushCache();
+
+        $this->accounts()->flushCache();
+
+        return;
+    }
 }
