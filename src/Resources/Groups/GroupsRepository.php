@@ -118,7 +118,7 @@ class GroupsRepository implements GroupsRepositoryContract
                 $groups = $this->client->listGroups(['domain' => config('gsuite.domain')])->groups;
             }
         } catch (\Exception $e) {
-            throw \Exception("Error retriving groups.", 1);
+            throw $e;
         }
 
         return $groups;
