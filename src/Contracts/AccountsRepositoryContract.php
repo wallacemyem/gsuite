@@ -13,8 +13,6 @@ interface AccountsRepositoryContract
     public function unsuspend(string $userKey);
 
     public function makeAdmin(string $userKey);
-    
-    public function update(string $userKey, array $parameters);
 
     public function get(string $userKey, string $projection, string $viewType);
 
