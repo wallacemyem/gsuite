@@ -41,7 +41,7 @@ class GroupsRepository implements GroupsRepositoryContract
         try {
             $response = $this->client->delete($groupKey);
 
-            $this->flushCache(config('gsuite.cache.groups.key'));
+            $this->flushCache();
             $this->flushCache(config('gsuite.cache.groups.key' . ':' . $groupKey));
         } catch (\Exception $e) {
             throw new \Exception("Error deleting group with key: {$groupKey}.", 1);
