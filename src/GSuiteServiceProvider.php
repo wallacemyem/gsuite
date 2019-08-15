@@ -20,6 +20,7 @@ use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 // Misc
 use Illuminate\Support\ServiceProvider;
 use Wyattcast44\GSuite\Commands\DeleteGroup;
+use Wyattcast44\GSuite\Commands\FlushCache;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
@@ -68,6 +69,7 @@ class GSuiteServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                FlushCache::class,
                 CreateGroup::class,
                 DeleteGroup::class,
                 CreateAccount::class,

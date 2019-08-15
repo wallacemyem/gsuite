@@ -137,7 +137,7 @@ class GroupsRepository implements GroupsRepositoryContract
             }
 
             if ($desciption <> '') {
-                $group->serDescription($desciption);
+                $group->setDescription($desciption);
             }
         });
 
@@ -151,7 +151,7 @@ class GroupsRepository implements GroupsRepositoryContract
      */
     public function shouldCache()
     {
-        return config('gsuite.cache.groups.should-cache');
+        return config('gsuite.cache.groups.cache');
     }
 
     /**
@@ -177,6 +177,6 @@ class GroupsRepository implements GroupsRepositoryContract
      */
     protected function getCacheTime()
     {
-        return config('gsuite.cache.groups.cache-time');
+        return config('gsuite.cache.groups.time');
     }
 }
