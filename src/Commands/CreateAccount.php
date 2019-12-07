@@ -32,16 +32,14 @@ class CreateAccount extends Command
             $password = $this->ask('What you like the password to be?');
         };
 
-        $resetPassword = $this->confirm('Would you like the user to reset their password at next login?', true);
-
         $this->info('Creating new account...');
 
         try {
-            $createAccountAction->execute($name, $email, $password, $resetPassword);
+            $createAccountAction->execute($name, $email, $password, true);
 
             $this->line('');
             
-            $this->info("Account created! Email address: {$email}");
+            $this->info("Account created! Email address: {$email}, Temporary Password: {$password}");
         } catch (\Exception $e) {
             logger($e);
 
