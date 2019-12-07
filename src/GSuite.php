@@ -2,6 +2,7 @@
 
 namespace Wyattcast44\GSuite;
 
+use Wyattcast44\GSuite\Clients\GoogleServicesClient;
 use Wyattcast44\GSuite\Resources\Groups\GroupsRepository;
 use Wyattcast44\GSuite\Resources\Accounts\AccountsRepository;
 
@@ -22,6 +23,8 @@ class GSuite
         $this->groups_repo = $groups_repo;
 
         $this->accounts_repo = $accounts_repo;
+
+        return $this;
     }
 
     public function accounts()
@@ -43,6 +46,6 @@ class GSuite
 
         $this->accounts()->flushCache();
 
-        return;
+        return $this;
     }
 }

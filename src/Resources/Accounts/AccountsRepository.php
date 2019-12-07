@@ -78,7 +78,9 @@ class AccountsRepository implements AccountsRepositoryContract
         }
 
         if ($response->getStatusCode() == 204) {
-            $this->flushCache();
+            if ($this->shouldCache()) {
+                $this->flushCache();
+            }
 
             return true;
         }
@@ -98,11 +100,11 @@ class AccountsRepository implements AccountsRepositoryContract
      */
     public function get(string $userKey, string $projection = 'full', string $viewType = 'admin_view')
     {
-        if (!in_array($projection, array('basic', 'full'))) {
+        if (!in_array($projection, ['basic', 'full'])) {
             throw new \Exception("The projection must be either 'basic' or 'full'.", 1);
         }
 
-        if (!in_array($viewType, array('admin_view', 'domain_public'))) {
+        if (!in_array($viewType, ['admin_view', 'domain_public'])) {
             throw new \Exception("The view type must be either 'admin_view' or 'domain_public'.", 1);
         }
 

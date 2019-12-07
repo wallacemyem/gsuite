@@ -24,9 +24,6 @@ use Wyattcast44\GSuite\Commands\FlushCache;
 
 class GSuiteServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     */
     public function boot()
     {
         // Publish config file...
@@ -35,9 +32,6 @@ class GSuiteServiceProvider extends ServiceProvider
         ], 'gsuite');
     }
 
-    /**
-     * Register the application services.
-     */
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/gsuite.php', 'gsuite');
@@ -52,11 +46,6 @@ class GSuiteServiceProvider extends ServiceProvider
             return new GoogleServicesClient(app('google-client'));
         });
 
-        // The base G-Suite class
-        $this->app->singleton('gsuite', function () {
-            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
-        });
-
         // G-Suite accounts repo
         $this->app->singleton('gsuite-accounts-repo', function () {
             return new AccountsRepository(app('google-services'));
@@ -65,6 +54,11 @@ class GSuiteServiceProvider extends ServiceProvider
         // G-Suite groups repo
         $this->app->singleton('gsuite-groups-repo', function () {
             return new GroupsRepository(app('google-services'));
+        });
+
+        // The base G-Suite class
+        $this->app->singleton('gsuite', function () {
+            return new GSuite(app('gsuite-groups-repo'), app('gsuite-accounts-repo'));
         });
 
         if ($this->app->runningInConsole()) {

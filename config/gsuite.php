@@ -46,7 +46,7 @@ return [
     | Your GSuite domain
     |
     */
-    'domain' => 'example.com',
+    'domain' => env('GSUITE_DOMAIN', 'example.com'),
     
     /*
     |--------------------------------------------------------------------------

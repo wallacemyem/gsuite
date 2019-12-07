@@ -39,19 +39,18 @@ php artisan vendor:publish
 GOOGLE_SERVICE_ACCOUNT=email@domain.com
 ```
 
-2. Update the `credentials_path` in config file, ensure you add your credentials
-   file to your `.gitignore`
+2. Update the `credentials_path`, ensure you add your credentials
+   file to your `.gitignore`. You can download this file from the [Google admin console](https://admin.google.com)
 
 ```php
-// gsuite.php
 'credentials_path' => storage_path('credentials.json'),
 ```
 
-3. Update the domain in config file
+3. Set your domain
 
 ```php
-// gsuite.php
-'domain' => 'my-domain.com',
+// .env
+GSUITE_DOMAIN=example.com
 ```
 
 4. Change cache settings as desired in config file
@@ -66,7 +65,14 @@ GOOGLE_SERVICE_ACCOUNT=email@domain.com
 
 ```php
 // Create a new G-Suite account
-GSuite::accounts()->create(['John', 'Doe'], 'john.doe@example.com', 'default-password');
+GSuite::accounts()->create([
+    [
+        'first_name' => 'John',
+        'last_name' => 'Doe',
+    ],
+    'email' => 'john.doe@email.com',
+    'default_password' => 'password'
+]);
 
 // Get a G-Suite account
 GSuite::accounts()->get('john.doe@example.com');
