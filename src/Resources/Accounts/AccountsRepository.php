@@ -250,6 +250,50 @@ class AccountsRepository implements AccountsRepositoryContract
     }
 
     /**
+     * Undelete a G-Suite account
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/undelete
+     *
+     * @return bool
+     */
+    public function undelete(string $userKey)
+    {
+        try {
+            $response = $this->client->undelete($userKey);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        if ($response->getStatusCode() == 204) {
+            if ($this->shouldCache()) {
+                $this->flushCache();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Update an account
+     *
+     * @link https://developers.google.com/admin-sdk/directory/v1/reference/users/update
+     * 
+     * @return \Google_Service_Directory_User
+     */
+    public function update(string $userKey, array $fields)
+    {
+        try {
+            $account = $this->client->update($userKey, new \Google_Service_Directory_User($fields));
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $account;
+    }
+
+    /**
      * Check the aviliablity of an email address
      *
      * @param $email

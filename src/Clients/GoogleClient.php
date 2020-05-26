@@ -16,17 +16,34 @@ class GoogleClient
      */
     public function __construct()
     {
-        return $this->setEnv()->setClient()->setScopes()->setSubject();
+        return $this->chain()
+                ->setEnv()
+                ->setClient()
+                ->setScopes()
+                ->setSubject();
     }
 
     /**
-     * Get the configured client
-     *
-     * @return \Google_Client
+     * A Single method to allow
+     * method chaining
      */
-    public function getClient()
+    public function chain()
     {
-        return $this->client;
+        return $this;
+    }
+
+    /**
+     * Set the env variables
+     *
+     * @return self
+     */
+    public function setEnv()
+    {
+        if (!getenv('GOOGLE_APPLICATION_CREDENTIALS')) {
+            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . config('gsuite.credentials_path'));
+        }
+
+        return $this;
     }
 
     /**
@@ -44,17 +61,13 @@ class GoogleClient
     }
 
     /**
-     * Set the env variables
+     * Get the configured client
      *
-     * @return self
+     * @return \Google_Client
      */
-    public function setEnv()
+    public function getClient()
     {
-        if (!getenv('GOOGLE_APPLICATION_CREDENTIALS')) {
-            putenv('GOOGLE_APPLICATION_CREDENTIALS=' . config('gsuite.credentials_path'));
-        }
-
-        return $this;
+        return $this->client;
     }
 
     /**

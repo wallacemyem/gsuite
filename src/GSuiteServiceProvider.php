@@ -29,7 +29,7 @@ class GSuiteServiceProvider extends ServiceProvider
         // Publish config file...
         $this->publishes([
             __DIR__ . '/../config/gsuite.php' => config_path('gsuite.php'),
-        ], 'gsuite');
+        ], 'config');
     }
 
     public function register()
