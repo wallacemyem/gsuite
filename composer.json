@@ -1,17 +1,17 @@
 {
     "name": "brickservers/gsuite",
-    "description": "Helps manage your GSuite Account from your Laravel application",
+    "description": "Helps manage your GSuite Account from your Laravel application [this package is developed further from the package wyattcast44/gsuite]",
     "keywords": [
-        "wyattcast44",
+        "brickservers",
         "gsuite"
     ],
-    "homepage": "https://github.com/wyattcast44/gsuite",
+    "homepage": "https://github.com/brickservers/gsuite",
     "license": "MIT",
     "type": "library",
     "authors": [
         {
-            "name": "Wyatt",
-            "email": "wyatt.castaneda@gmail.com",
+            "name": "Wallace Myem",
+            "email": "wallace@brickng.com",
             "role": "Developer"
         }
     ],
