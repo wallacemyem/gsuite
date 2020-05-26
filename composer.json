@@ -18,7 +18,7 @@
     "require": {
         "php": "^7.1",
         "google/apiclient": "^2.2",
-        "illuminate/support": "5.8.*",
+        "illuminate/support": "^5.0|^6.0|^7.0",
         "spatie/laravel-queueable-action": "^2.1"
     },
     "require-dev": {
