@@ -1,11 +1,6 @@
 # G-Suite Admin SDK Wrapper
 
-<!-- [![Latest Version on Packagist](https://img.shields.io/packagist/v/wyattcast44/gsuite.svg?style=flat-square)](https://packagist.org/packages/wyattcast44/gsuite) -->
-
-<!--
-[![Build Status](https://img.shields.io/travis/wyattcast44/gsuite/master.svg?style=flat-square)](https://travis-ci.org/wyattcast44/gsuite)
-[![Quality Score](https://img.shields.io/scrutinizer/g/wyattcast44/gsuite.svg?style=flat-square)](https://scrutinizer-ci.com/g/wyattcast44/gsuite)
-[![Total Downloads](https://img.shields.io/packagist/dt/wyattcast44/gsuite.svg?style=flat-square)](https://packagist.org/packages/wyattcast44/gsuite) -->
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
 
 This is a wrapper around the
 [Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
@@ -21,7 +16,7 @@ tagged when ready for testing._**
 You can install the package via composer:
 
 ```bash
-composer require wyattcast44/gsuite
+composer require brickservers/gsuite
 ```
 
 Once the install has finished, publish the configuration file
@@ -164,7 +159,7 @@ wyatt.castaneda@gmail.com instead of using the issue tracker.
 
 ## Credits
 
--   [Wyatt](https://github.com/wyattcast44)
+-   [Wyatt](https://github.com/wyattcast44) #first started the package
 -   [All Contributors](../../contributors)
 
 ## License
