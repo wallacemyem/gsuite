@@ -1,6 +1,7 @@
 # G-Suite Admin SDK Wrapper
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
+[![Total Downloads](https://poser.pugx.org/brickservers/gsuite/downloads)](//packagist.org/packages/brickservers/gsuite)
 
 This is a wrapper around the
 [Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
