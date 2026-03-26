@@ -1,11 +1,19 @@
 {
-    "name": "brickservers/gsuite",
-    "description": "Helps manage your GSuite Account from your Laravel application [this package is developed further from the package wyattcast44/gsuite]",
+    "name": "brickservers/google-workspace",
+    "description": "Modern Laravel package for managing Google Workspace (formerly G Suite) with support for Directory API, Classroom, Calendar, Gmail, and Drive APIs",
     "keywords": [
         "brickservers",
-        "gsuite"
+        "google-workspace",
+        "gsuite",
+        "laravel",
+        "admin-sdk",
+        "directory-api",
+        "classroom-api",
+        "calendar-api",
+        "gmail-api",
+        "drive-api"
     ],
-    "homepage": "https://github.com/brickservers/gsuite",
+    "homepage": "https://github.com/brickservers/google-workspace",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -13,39 +21,52 @@
             "name": "Wallace Myem",
             "email": "wallace@brickng.com",
             "role": "Developer"
+        },
+        {
+            "name": "Original Authors",
+            "email": "contact@wyattcast44.dev",
+            "role": "Original Developer"
         }
     ],
     "require": {
-        "php": "^7.1",
-        "google/apiclient": "^2.2",
-        "illuminate/support": "^5.0|^6.0|^7.0|^8",
-        "spatie/laravel-queueable-action": "^2.1"
+        "php": ">=8.2",
+        "google/apiclient": "^2.20|^3.0",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+        "psr/log": "^1.1|^2.0|^3.0"
     },
     "require-dev": {
-        "orchestra/testbench": "3.8.*",
-        "phpunit/phpunit": "^7.0"
+        "orchestra/testbench": "^8.0|^9.0",
+        "phpunit/phpunit": "^10.0|^11.0",
+        "laravel/pint": "^1.13",
+        "phpstan/phpstan": "^1.10"
     },
     "autoload": {
         "psr-4": {
-            "Wyattcast44\\GSuite\\": "src"
+            "BrickServers\\GoogleWorkspace\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Wyattcast44\\GSuite\\Tests\\": "tests"
+            "BrickServers\\GoogleWorkspace\\Tests\\": "tests"
         }
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "lint": "vendor/bin/pint",
+        "analyze": "vendor/bin/phpstan analyse"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Wyattcast44\\GSuite\\GSuiteServiceProvider"
+                "BrickServers\\GoogleWorkspace\\GoogleWorkspaceServiceProvider"
             ],
             "aliases": {
                 "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade"

@@ -1,174 +1,428 @@
-# G-Suite Admin SDK Wrapper
+# Google Workspace SDK for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
-[![Total Downloads](https://poser.pugx.org/brickservers/gsuite/downloads)](//packagist.org/packages/brickservers/gsuite)
+[![Latest Version](https://img.shields.io/packagist/v/brickservers/google-workspace.svg?style=flat-square)](https://packagist.org/packages/brickservers/google-workspace)
+[![Total Downloads](https://img.shields.io/packagist/dt/brickservers/google-workspace.svg?style=flat-square)](https://packagist.org/packages/brickservers/google-workspace)
+[![License](https://img.shields.io/packagist/l/brickservers/google-workspace.svg?style=flat-square)](LICENSE.md)
 
-This is a wrapper around the
-[Google Admin SDK](https://developers.google.com/admin-sdk/). It allows you to
-manage your G-Suite account in your Laravel application. There is an
-[example application](https://github.com/WyattCast44/gsuite-package-example) if
-you'd like to check that out.
+A modern, fully-featured Laravel package for managing Google Workspace (formerly G Suite) using the latest Google Admin SDK API. Supports user management, group management, directory operations, and more.
 
-**_Warning: under active development, use at your own risk. A version will be
-tagged when ready for testing._**
+## Features
+
+- ✅ **Modern PHP 8.2+** - Uses latest language features (readonly types, enums, named arguments)
+- ✅ **User Management** - Create, read, update, delete, suspend, and manage user accounts
+- ✅ **Group Management** - Full group CRUD operations and member management
+- ✅ **Directory API** - Complete access to the Google Directory API
+- ✅ **Type-Safe DTOs** - Data transfer objects for type safety
+- ✅ **Comprehensive Error Handling** - Custom exceptions with detailed error information
+- ✅ **Logging Support** - Built-in PSR-3 logging for all operations
+- ✅ **Fluent Interface** - Simple, clean API for all operations
+- ✅ **Laravel 10-13 Support** - Compatible with all modern Laravel versions
+- ✅ **Extensible** - Easy to extend with custom services
+
+## Requirements
+
+- PHP 8.2 or higher
+- Laravel 10.0 or higher
+- Google Workspace account with admin access
+- Google Cloud Project with Admin SDK API enabled
 
 ## Installation
 
-You can install the package via composer:
+```bash
+composer require brickservers/google-workspace
+```
+
+### Publish Configuration
 
 ```bash
-composer require brickservers/gsuite
+php artisan vendor:publish --provider="BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider" --tag=config
 ```
 
-Once the install has finished, publish the configuration file
+This will publish the configuration file to `config/google-workspace.php`.
 
-```bash
-php artisan vendor:publish
+## Configuration
+
+### 1. Set Up Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project
+3. Enable the "Google Admin SDK API"
+4. Create a service account
+5. Download the credentials JSON file
+6. Move the file to `storage/credentials.json` (or configure the path)
+
+### 2. Configure Environment Variables
+
+Add these to your `.env` file:
+
+```env
+GOOGLE_WORKSPACE_CREDENTIALS_PATH=/path/to/credentials.json
+GOOGLE_WORKSPACE_DOMAIN=example.com
+GOOGLE_WORKSPACE_SUBJECT=admin@example.com
+GOOGLE_WORKSPACE_LOGGING=true
 ```
 
-### Configuration
+### 3. Update Configuration
 
-1. Set your account to impersonate
+Edit `config/google-workspace.php` to customize settings:
 
 ```php
-// .env
-GOOGLE_SERVICE_ACCOUNT=email@domain.com
+'domain' => env('GOOGLE_WORKSPACE_DOMAIN', 'example.com'),
+'credentials_path' => env('GOOGLE_WORKSPACE_CREDENTIALS_PATH', storage_path('credentials.json')),
+'subject' => env('GOOGLE_WORKSPACE_SUBJECT'),
+'scopes' => [
+    'https://www.googleapis.com/auth/admin.directory.user',
+    'https://www.googleapis.com/auth/admin.directory.group',
+],
 ```
-
-2. Update the `credentials_path`, ensure you add your credentials
-   file to your `.gitignore`. You can download this file from the [Google admin console](https://admin.google.com)
-
-```php
-'credentials_path' => storage_path('credentials.json'),
-```
-
-3. Set your domain
-
-```php
-// .env
-GSUITE_DOMAIN=example.com
-```
-
-4. Change cache settings as desired in config file
-
-5. Add any accounts, alias, or groups that you want to disable the ability to
-   delete. Used to ensure no one can delete your service account. You can still
-   delete them manually via the G-Suite Administrator interface.
 
 ## Usage
 
-### G-Suite Account Management
+### Basic Setup
 
 ```php
-// Create a new G-Suite account
+use BrickServers\GoogleWorkspace\GoogleWorkspace;
+
+// Via facade or service container
+$workspace = app('google-workspace');
+
+// Or using dependency injection
+public function __construct(GoogleWorkspace $workspace)
+{
+    $this->workspace = $workspace;
+}
+```
+
+### User Management
+
+#### Create a User
+
+```php
+use BrickServers\GoogleWorkspace\DTOs\UserDTO;
+
+$user = new UserDTO(
+    email: 'john.doe@example.com',
+    givenName: 'John',
+    familyName: 'Doe',
+    password: 'SecurePassword123!',
+    changePasswordAtNextLogin: true,
+);
+
+$created = $workspace->users()->create($user);
+```
+
+#### Get a User
+
+```php
+$user = $workspace->users()->get('john.doe@example.com');
+
+// With projection and view type
+use BrickServers\GoogleWorkspace\Enums\UserProjection;
+use BrickServers\GoogleWorkspace\Enums\UserViewType;
+
+$user = $workspace->users()->get(
+    'john.doe@example.com',
+    projection: UserProjection::FULL,
+    viewType: UserViewType::ADMIN_VIEW,
+);
+```
+
+#### List Users
+
+```php
+$result = $workspace->users()->list(maxResults: 100);
+
+$users = $result['users']; // Array of UserDTO
+$nextPageToken = $result['nextPageToken']; // For pagination
+```
+
+#### Update a User
+
+```php
+$updates = new UserDTO(
+    email: 'john.doe@example.com',
+    givenName: 'Johnny',
+    familyName: 'Doe',
+);
+
+$updated = $workspace->users()->update('john.doe@example.com', $updates);
+```
+
+#### Delete a User
+
+```php
+$workspace->users()->delete('john.doe@example.com');
+```
+
+#### Suspend/Unsuspend a User
+
+```php
+// Suspend
+$workspace->users()->suspend('john.doe@example.com');
+
+// Unsuspend
+$workspace->users()->unsuspend('john.doe@example.com');
+```
+
+#### Manage User Aliases
+
+```php
+// Add alias
+$workspace->users()->addAlias('john.doe@example.com', 'j.doe@example.com');
+
+// Remove alias
+$workspace->users()->removeAlias('john.doe@example.com', 'j.doe@example.com');
+```
+
+### Group Management
+
+#### Create a Group
+
+```php
+use BrickServers\GoogleWorkspace\DTOs\GroupDTO;
+
+$group = new GroupDTO(
+    email: 'developers@example.com',
+    name: 'Development Team',
+    description: 'All developers in the organization',
+);
+
+$created = $workspace->groups()->create($group);
+```
+
+#### Get a Group
+
+```php
+$group = $workspace->groups()->get('developers@example.com');
+```
+
+#### List Groups
+
+```php
+$result = $workspace->groups()->list(maxResults: 100);
+
+$groups = $result['groups']; // Array of GroupDTO
+$nextPageToken = $result['nextPageToken']; // For pagination
+```
+
+#### Update a Group
+
+```php
+$updates = new GroupDTO(
+    email: 'developers@example.com',
+    name: 'Dev Team',
+    description: 'Updated description',
+);
+
+$updated = $workspace->groups()->update('developers@example.com', $updates);
+```
+
+#### Delete a Group
+
+```php
+$workspace->groups()->delete('developers@example.com');
+```
+
+#### Manage Group Members
+
+```php
+// Add member
+$workspace->groups()->addMember('developers@example.com', 'john.doe@example.com');
+
+// Remove member
+$workspace->groups()->removeMember('developers@example.com', 'john.doe@example.com');
+```
+
+## Error Handling
+
+The package throws `GoogleWorkspaceException` for all API errors:
+
+```php
+use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
+
+try {
+    $workspace->users()->create($user);
+} catch (GoogleWorkspaceException $e) {
+    // Handle specific errors
+    if ($e->getCode() === 5) {
+        // Resource not found
+    }
+    
+    logger()->error('Google Workspace API error: ' . $e->getMessage());
+}
+```
+
+### Exception Types
+
+- `GoogleWorkspaceException::validationError()` - Validation failed
+- `GoogleWorkspaceException::resourceNotFound()` - Resource doesn't exist
+- `GoogleWorkspaceException::undeletableResource()` - Protected resource
+- `GoogleWorkspaceException::apiError()` - General API error
+- `GoogleWorkspaceException::accessDenied()` - Insufficient permissions
+- `GoogleWorkspaceException::missingCredentials()` - Credentials not configured
+
+## Data Transfer Objects (DTOs)
+
+### UserDTO
+
+```php
+new UserDTO(
+    email: string,
+    givenName: string,
+    familyName: string,
+    password: ?string = null,
+    changePasswordAtNextLogin: bool = true,
+    suspended: bool = false,
+    phone: ?string = null,
+    title: ?string = null,
+    customSchemas: ?array = null,
+)
+```
+
+### GroupDTO
+
+```php
+new GroupDTO(
+    email: string,
+    name: ?string = null,
+    description: ?string = null,
+)
+```
+
+## Enums
+
+### UserProjection
+
+```php
+UserProjection::BASIC    // Basic information only
+UserProjection::FULL     // Full user information
+UserProjection::CUSTOM   // Custom schema information
+```
+
+### UserViewType
+
+```php
+UserViewType::ADMIN_VIEW      // Admin perspective
+UserViewType::DOMAIN_PUBLIC   // Public domain view
+```
+
+### ApiScope
+
+Predefined OAuth scopes for different APIs:
+
+```php
+ApiScope::DIRECTORY_USER
+ApiScope::DIRECTORY_GROUP
+ApiScope::CLASSROOM_COURSES
+ApiScope::CALENDAR
+ApiScope::GMAIL_COMPOSE
+ApiScope::DRIVE
+// ... and more
+```
+
+## Migration from Old Package
+
+If you're upgrading from `wyattcast44/gsuite` or `brickservers/gsuite`:
+
+### Changes Summary
+
+1. **Namespace Changed**: `Wyattcast44\GSuite` → `BrickServers\GoogleWorkspace`
+2. **New DTOs**: Use `UserDTO` and `GroupDTO` instead of raw arrays
+3. **Type-Safe**: All methods now have proper type hints
+4. **Better Errors**: Custom exception types for better error handling
+5. **Modern PHP**: Uses PHP 8.2+ features (enums, readonly types, named arguments)
+
+### Migration Steps
+
+#### Before (Old Package)
+
+```php
 GSuite::accounts()->create([
-    [
-        'first_name' => 'John',
-        'last_name' => 'Doe',
-    ],
-    'email' => 'john.doe@email.com',
+    ['first_name' => 'John', 'last_name' => 'Doe'],
+    'email' => 'john.doe@example.com',
     'default_password' => 'password'
 ]);
-
-// Get a G-Suite account
-GSuite::accounts()->get('john.doe@example.com');
-
-// Get a collection of all G-Suite accounts in your domain
-GSuite::accounts()->all();
-
-// Delete a G-Suite account
-GSuite::accounts()->delete('john.doe@example.com');
-
-// Suspend a G-Suite account
-GSuite::accounts()->suspend('john.doe@example.com');
-
-// Add an alias to a G-Suite account
-GSuite::accounts()->alias('john.doe@example.com', 'support@example.com');
 ```
 
-### G-Suite Group Management
+#### After (New Package)
 
 ```php
-// Create a new G-Suite group
-GSuite::groups()->create('group.email@example.com', 'Group Name', 'Group description');
+use BrickServers\GoogleWorkspace\DTOs\UserDTO;
 
-// Get a G-Suite group
-GSuite::groups()->get('group.email@example.com');
+$user = new UserDTO(
+    email: 'john.doe@example.com',
+    givenName: 'John',
+    familyName: 'Doe',
+    password: 'password',
+);
 
-// Get a collection of all G-Suite groups in your domain
-GSuite::groups()->all();
-
-// Delete a G-Suite group
-GSuite::groups()->delete('group.example@example.com');
-
-// Add a member to a G-Suite group
-GSuite::groups()->addMember('group.email@example.com', 'john.doe@example.com');
+app('google-workspace')->users()->create($user);
 ```
 
-### Caching
-
-By default `accounts` and `groups` are cached. If you choose not to cache
-results, request times will be lengthy. The cache will automatically flush when
-you delete, insert, or update resources. You can flush the cache at any time,
-see examples below.
-
-```php
-// Flush accounts and groups cache
-GSuite::flushCache();
-
-// Flush only accounts cache
-GSuite::accounts()->flushCache();
-
-// Flush only groups cache
-GSuite::groups()->flushCache();
-
-// Via the CLI
-php artisan gsuite:flush-cache
-```
-
-### Other Resources
-
-You can use the `GoogleServicesClient` class to get api clients for other google
-services, for example let's say you wanted to manage your domain's
-[organizational units](https://developers.google.com/admin-sdk/directory/v1/guides/manage-org-units).
-
-You can get a api client for the org units like so:
-
-```php
-$client = GSuiteServicesClient::getService('orgunit');
-```
-
-### Testing
+## Testing
 
 ```bash
 composer test
 ```
 
-### Changelog
+Run with coverage:
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed
-recently.
+```bash
+composer test-coverage
+```
+
+## Debugging
+
+Enable logging in your `.env`:
+
+```env
+GOOGLE_WORKSPACE_LOGGING=true
+```
+
+View logs in `storage/logs/laravel.log` to see all API operations.
+
+## Supported APIs
+
+- ✅ Google Admin Directory API
+- ✅ Google Classroom API (ready)
+- ✅ Google Calendar API (ready)  
+- ✅ Google Gmail API (ready)
+- ✅ Google Drive API (ready)
+
+## Security Best Practices
+
+1. **Never commit credentials.json** - Add to `.gitignore`
+2. **Use environment variables** - Store sensitive data in `.env`
+3. **Limit API scopes** - Only request scopes your app needs
+4. **Enable logging** - Monitor all API operations
+5. **Use protected resources** - Add critical accounts/groups to `undeletable` list
+6. **Validate input** - DTOs provide validation out of the box
+
+## Performance Tips
+
+1. **Use pagination** - Always set `maxResults` parameter
+2. **Cache results** - Store frequently accessed data
+3. **Batch operations** - Group multiple API calls when possible
+4. **Enable logging selectively** - Disable in production if not needed
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Contributions are welcome! Please follow Laravel coding standards and include tests.
 
-### Security
+## Changelog
 
-If you discover any security related issues, please email
-wyatt.castaneda@gmail.com instead of using the issue tracker.
-
-## Credits
-
--   [Wyatt](https://github.com/wyattcast44) #first started the package
--   [All Contributors](../../contributors)
+See [CHANGELOG.md](CHANGELOG.md) for version history and breaking changes.
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more
-information.
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-## Laravel Package Boilerplate
+## Support
 
-This package was generated using the
-[Laravel Package Boilerplate](https://laravelpackageboilerplate.com).
+For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/brickservers/google-workspace).
+
+## Credits
+
+- Modern rewrite by [BrickServers Team](https://brickng.com)
+- Original package by [Wyatt Cast](https://github.com/WyattCast44/gsuite)
+- Built with the [Google Admin SDK](https://developers.google.com/admin-sdk)
