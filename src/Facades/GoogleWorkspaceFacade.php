@@ -11,7 +11,7 @@ use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
  * @method static UsersRepository users()
  * @method static GroupsRepository groups()
  * @method static GoogleServicesFactory services()
- * 
+ *
  * @see \BrickServers\GoogleWorkspace\GoogleWorkspace
  */
 class GoogleWorkspaceFacade extends Facade

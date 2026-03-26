@@ -10,7 +10,7 @@ use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 
 /**
  * Batch Operations Utility
- * 
+ *
  * Helper for performing batch operations on multiple users/groups
  */
 class BatchOperations

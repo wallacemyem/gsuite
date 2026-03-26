@@ -14,7 +14,7 @@ use Psr\Log\NullLogger;
 
 /**
  * Google Services Factory
- * 
+ *
  * Manages all Google API service instances
  */
 class GoogleServicesFactory
