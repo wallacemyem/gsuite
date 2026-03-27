@@ -23,7 +23,7 @@ composer remove brickservers/gsuite
 ### Install New Package
 
 ```bash
-composer require brickservers/google-workspace
+composer require brickservers/gsuite
 ```
 
 ### Publish Configuration
@@ -375,7 +375,7 @@ For issues or questions:
 1. Check the [README.md](README.md)
 2. Review [api.md](api.md)
 3. See [EXAMPLES.md](EXAMPLES.md)
-4. Open an issue on [GitHub](https://github.com/brickservers/google-workspace)
+4. Open an issue on [GitHub](https://github.com/brickservers/gsuite)
 
 ## Need to Keep Old Version?
 
@@ -383,7 +383,7 @@ If you need to keep the old package alongside the new one, use version constrain
 
 ```bash
 composer require "wyattcast44/gsuite:^2.0"
-composer require "brickservers/google-workspace:^3.0"
+composer require "brickservers/gsuite:^3.0"
 ```
 
 Then use different aliases/service names in your code.
