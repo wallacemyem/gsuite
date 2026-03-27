@@ -116,7 +116,7 @@ class UsersRepository
     public function addAlias(string $userKey, string $alias): bool
     {
         try {
-            $userAlias = new \Google_Service_Directory_UserAlias(['alias' => $alias]);
+            $userAlias = new \Google\Service\Directory\Alias(['alias' => $alias]);
             $this->services->directory()->users_aliases->insert($userKey, $userAlias);
             return true;
         } catch (\Exception $e) {
@@ -137,7 +137,9 @@ class UsersRepository
     public function makeAdmin(string $userKey): bool
     {
         try {
-            $this->services->directory()->users->makeAdmin($userKey, new \Google_Service_Directory_User());
+            $makeAdminRequest = new \Google\Service\Directory\UserMakeAdmin();
+            $makeAdminRequest->setStatus(true);
+            $this->services->directory()->users->makeAdmin($userKey, $makeAdminRequest);
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::apiError("Failed to promote user: {$e->getMessage()}", $e);

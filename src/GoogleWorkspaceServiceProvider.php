@@ -5,6 +5,8 @@ namespace BrickServers\GoogleWorkspace;
 use Illuminate\Support\ServiceProvider;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
+use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
 use BrickServers\GoogleWorkspace\Enums\ApiScope;
 
 /**
@@ -41,13 +43,31 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
             );
         });
 
+        // Register Users Repository
+        $this->app->singleton(UsersRepository::class, function () {
+            return new UsersRepository(
+                services: app(GoogleServicesFactory::class),
+                domain: config('google-workspace.domain'),
+                undeletableUsers: config('google-workspace.undeletable.users', []),
+            );
+        });
+
+        // Register Groups Repository
+        $this->app->singleton(GroupsRepository::class, function () {
+            return new GroupsRepository(
+                services: app(GoogleServicesFactory::class),
+                domain: config('google-workspace.domain'),
+                logger: app('log'),
+                undeletableGroups: config('google-workspace.undeletable.groups', []),
+            );
+        });
+
         // Register Main Facade
         $this->app->singleton('google-workspace', function () {
             return new GoogleWorkspace(
                 services: app(GoogleServicesFactory::class),
-                domain: config('google-workspace.domain'),
-                undeletableUsers: config('google-workspace.undeletable.users', []),
-                undeletableGroups: config('google-workspace.undeletable.groups', []),
+                users: app(UsersRepository::class),
+                groups: app(GroupsRepository::class),
             );
         });
     }

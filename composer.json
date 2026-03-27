@@ -57,6 +57,8 @@
         "lint": "vendor/bin/pint",
         "analyze": "vendor/bin/phpstan analyse"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "config": {
         "sort-packages": true,
         "allow-plugins": {
