@@ -1,8 +1,8 @@
 # Google Workspace SDK for Laravel
 
-[![Latest Version](https://img.shields.io/packagist/v/brickservers/google-workspace.svg?style=flat-square)](https://packagist.org/packages/brickservers/google-workspace)
-[![Total Downloads](https://img.shields.io/packagist/dt/brickservers/google-workspace.svg?style=flat-square)](https://packagist.org/packages/brickservers/google-workspace)
-[![License](https://img.shields.io/packagist/l/brickservers/google-workspace.svg?style=flat-square)](LICENSE.md)
+[![Latest Version](https://img.shields.io/packagist/v/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
+[![Total Downloads](https://img.shields.io/packagist/dt/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
+[![License](https://img.shields.io/packagist/l/brickservers/gsuite.svg?style=flat-square)](LICENSE.md)
 
 A modern, fully-featured Laravel package for managing Google Workspace (formerly G Suite) using the latest Google Admin SDK API. Supports user management, group management, directory operations, and more.
 
@@ -29,7 +29,7 @@ A modern, fully-featured Laravel package for managing Google Workspace (formerly
 ## Installation
 
 ```bash
-composer require brickservers/google-workspace
+composer require brickservers/gsuite
 ```
 
 ### Publish Configuration
@@ -419,7 +419,7 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/brickservers/google-workspace).
+For issues, questions, or suggestions, please open an issue on [GitHub](https://github.com/wallacemyem/gsuite).
 
 ## Credits
 

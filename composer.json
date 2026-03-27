@@ -1,5 +1,5 @@
 {
-    "name": "brickservers/google-workspace",
+    "name": "brickservers/gsuite",
     "description": "Modern Laravel package for managing Google Workspace (formerly G Suite) with support for Directory API, Classroom, Calendar, Gmail, and Drive APIs",
     "keywords": [
         "brickservers",
@@ -13,13 +13,13 @@
         "gmail-api",
         "drive-api"
     ],
-    "homepage": "https://github.com/brickservers/google-workspace",
+    "homepage": "https://github.com/wallacemyem/gsuite",
     "license": "MIT",
     "type": "library",
     "authors": [
         {
             "name": "Wallace Myem",
-            "email": "wallace@brickng.com",
+            "email": "wallacemyem@hotmail.com",
             "role": "Developer"
         },
         {
