@@ -45,20 +45,30 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
 
         // Register Users Repository
         $this->app->singleton(UsersRepository::class, function () {
+            $undeletableUsers = config('google-workspace.undeletable.users', []);
+            if (is_string($undeletableUsers)) {
+                $undeletableUsers = array_filter(array_map('trim', explode(',', $undeletableUsers)));
+            }
+
             return new UsersRepository(
                 services: app(GoogleServicesFactory::class),
                 domain: config('google-workspace.domain'),
-                undeletableUsers: config('google-workspace.undeletable.users', []),
+                undeletableUsers: $undeletableUsers,
             );
         });
 
         // Register Groups Repository
         $this->app->singleton(GroupsRepository::class, function () {
+            $undeletableGroups = config('google-workspace.undeletable.groups', []);
+            if (is_string($undeletableGroups)) {
+                $undeletableGroups = array_filter(array_map('trim', explode(',', $undeletableGroups)));
+            }
+
             return new GroupsRepository(
                 services: app(GoogleServicesFactory::class),
                 domain: config('google-workspace.domain'),
                 logger: app('log'),
-                undeletableGroups: config('google-workspace.undeletable.groups', []),
+                undeletableGroups: $undeletableGroups,
             );
         });
 
@@ -70,6 +80,9 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
                 groups: app(GroupsRepository::class),
             );
         });
+
+        // Backward compatibility alias for old packages
+        $this->app->alias('google-workspace', 'gsuite');
     }
 
     public function provides(): array
