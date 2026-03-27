@@ -30,15 +30,15 @@
     ],
     "require": {
         "php": ">=8.2",
-        "google/apiclient": "^2.20|^3.0",
-        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "google/apiclient": "^2.19",
         "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
         "psr/log": "^1.1|^2.0|^3.0"
     },
     "require-dev": {
         "orchestra/testbench": "^8.0|^9.0",
         "phpunit/phpunit": "^10.0|^11.0",
-        "laravel/pint": "^1.13",
+        "laravel/pint": "^1.29",
         "phpstan/phpstan": "^1.10"
     },
     "autoload": {
@@ -71,7 +71,7 @@
                 "BrickServers\\GoogleWorkspace\\GoogleWorkspaceServiceProvider"
             ],
             "aliases": {
-                "GSuite": "Wyattcast44\\GSuite\\Facades\\GSuiteFacade"
+                "GSuite": "BrickServers\\GoogleWorkspace\\Facades\\GSuiteFacade"
             }
         }
     }
