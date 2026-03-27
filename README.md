@@ -4,7 +4,19 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
 [![License](https://img.shields.io/packagist/l/brickservers/gsuite.svg?style=flat-square)](LICENSE.md)
 
+
+
 A modern, fully-featured Laravel package for managing Google Workspace (formerly G Suite) using the latest Google Admin SDK API. Supports user management, group management, directory operations, and more.
+
+## Sponsor
+
+Support the development of this package:
+
+<p align="center">
+  <a href="https://paystack.shop/pay/wallace">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Paystack.png" alt="Sponsor with Paystack" width="200">
+  </a>
+</p>
 
 ## Features
 
