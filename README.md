@@ -11,12 +11,11 @@ A modern, fully-featured Laravel package for managing Google Workspace (formerly
 ## Sponsor
 
 Support the development of this package:
-
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/wallacemyem)
 <p align="center">
   <a href="https://paystack.shop/pay/wallace">
     <img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Paystack.png" alt="Sponsor with Paystack" width="200">
   </a>
-    [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/wallacemyem)
 </p>
 
 ## Features
