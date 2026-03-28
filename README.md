@@ -16,6 +16,7 @@ Support the development of this package:
   <a href="https://paystack.shop/pay/wallace">
     <img src="https://upload.wikimedia.org/wikipedia/commons/1/1f/Paystack.png" alt="Sponsor with Paystack" width="200">
   </a>
+    <iframe src="https://github.com/sponsors/wallacemyem/button" title="Sponsor wallacemyem" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
 </p>
 
 ## Features
