@@ -498,7 +498,7 @@ $events = $calendar->events->listEvents('primary');
 
 ## Contributing
 
-Contributions are welcome! Please follow Laravel coding standards and include tests.
+Contributions are welcome! Please include tests, and run `composer test`, `composer lint` and `composer analyze` before opening a pull request (CI runs all three).
 
 ## Changelog
 

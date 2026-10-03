@@ -28,3 +28,19 @@ jobs:
       run: composer update --no-interaction --no-progress --prefer-dist
     - name: Execute tests
       run: vendor/bin/phpunit
+
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+      with:
+        php-version: '8.3'
+        coverage: none
+    - name: Install Dependencies
+      run: composer update --no-interaction --no-progress --prefer-dist
+    - name: Check code style
+      run: vendor/bin/pint --test
+    - name: Static analysis
+      run: vendor/bin/phpstan analyse --no-progress
