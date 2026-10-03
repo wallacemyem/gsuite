@@ -6,7 +6,7 @@ use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use Google\Client;
 use Google\Task\Runner;
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Psr\Http\Message\RequestInterface;
@@ -116,7 +116,7 @@ class GoogleWorkspaceClient
         }
 
         // Guzzle 7 keeps the response on RequestException, Guzzle 8 only on its subclasses
-        $retry = $exception instanceof GuzzleException
+        $retry = $exception instanceof TransferException
             && ! (method_exists($exception, 'getResponse') && $exception->getResponse() !== null);
 
         if ($retry) {
