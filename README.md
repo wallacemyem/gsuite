@@ -21,6 +21,8 @@ Support the development of this package:
 ## Features
 
 - ✅ **Modern PHP 8.2+** - Uses latest language features (readonly types, enums, named arguments)
+- ✅ **Every Google API Method** - All 413 methods of the Directory, Classroom, Calendar, Gmail and Drive APIs
+- ✅ **Act as Any User** - `asUser()` for Gmail settings, calendars and Drive files via domain-wide delegation
 - ✅ **User Management** - Create, read, update, delete, suspend, and manage user accounts
 - ✅ **Group Management** - Full group CRUD operations and member management
 - ✅ **Batch Operations** - Bulk creates and membership changes sent as Google batch requests
@@ -298,6 +300,75 @@ $workspace->groups()->addMember('developers@example.com', 'john.doe@example.com'
 $workspace->groups()->removeMember('developers@example.com', 'john.doe@example.com');
 ```
 
+### Full API Access
+
+Every resource and method of the Directory, Classroom, Calendar, Gmail and Drive APIs is available through `directory()`, `classroom()`, `calendar()`, `gmail()` and `drive()`. Resource and method names match Google's PHP client (and its API reference), and arguments and return values are Google's own model classes:
+
+```php
+use Google\Service\Directory\OrgUnit;
+
+// Org units, roles, domains, devices, schemas, buildings, ... (Directory API)
+$workspace->directory()->orgunits()->insert('my_customer', new OrgUnit([
+    'name' => 'Engineering',
+    'parentOrgUnitPath' => '/',
+]));
+$roles = $workspace->directory()->roles()->listRoles('my_customer');
+$workspace->directory()->users()->signOut('john.doe@example.com');
+$workspace->directory()->twoStepVerification()->turnOff('john.doe@example.com');
+
+// Classroom
+$courses = $workspace->classroom()->courses()->listCourses(['teacherId' => 'teacher@example.com']);
+```
+
+Every call:
+- turns Google errors into `GoogleWorkspaceException` with the codes listed under [Error Handling](#error-handling),
+- writes a log entry for anything that changes data,
+- applies the same protections as the repositories: protected users and groups can't be deleted, renamed or (users) suspended, and super admin can't be granted, through `makeAdmin` or a Super Admin role assignment, unless `allow_admin_promotion` is on.
+
+For anything else, `->google()` returns the underlying `Google\Service\*` object.
+
+#### Acting as a User
+
+Gmail, Calendar and Drive mostly work on a particular user's data. `asUser()` impersonates that user through domain-wide delegation:
+
+```php
+use Google\Service\Gmail\VacationSettings;
+
+$jane = $workspace->asUser('jane@example.com');
+
+$jane->gmail()->usersSettings()->updateVacation('me', new VacationSettings([
+    'enableAutoReply' => true,
+    'responseSubject' => 'Out of office',
+    'responseBodyPlainText' => 'Back on Monday.',
+]));
+$events = $jane->calendar()->events()->listEvents('primary');
+$files = $jane->drive()->files()->listFiles(['pageSize' => 50]);
+```
+
+The impersonated account needs the right scopes. By default `asUser()` uses the configured `scopes`; pass others as the second argument. Every scope must be authorized for the service account under **Security → API controls → Domain-wide delegation** in the Google Admin console. Google's service classes define constants for each scope:
+
+```php
+use Google\Service\Gmail;
+
+$jane = $workspace->asUser('jane@example.com', [Gmail::GMAIL_SETTINGS_BASIC, Gmail::GMAIL_SETTINGS_SHARING]);
+```
+
+`users()`, `groups()` and `batch()` always act as the configured admin, even after `asUser()`.
+
+#### Paginating Any List
+
+```php
+foreach ($workspace->directory()->mobiledevices()->paginate('listMobiledevices', 'my_customer') as $device) {
+    // every device, across all pages
+}
+
+foreach ($jane->drive()->files()->paginate('listFiles', ['q' => "mimeType = 'application/pdf'"]) as $file) {
+    // ...
+}
+```
+
+Pass the list method's name followed by its normal arguments.
+
 ### Batch Operations
 
 Bulk user creation and group membership changes are sent as Google batch requests (up to 1000 calls per HTTP request). Each item succeeds or fails on its own:
@@ -471,13 +542,17 @@ Every change made through the package (creates, updates, deletes, suspensions, a
 
 ## Supported APIs
 
-- ✅ **Directory API** - Users and groups, with the repositories documented above
-- 🔧 **Classroom, Calendar, Gmail, Drive** - Authenticated Google service clients only, with no helper methods yet. Add the matching scopes, then call the Google client directly:
+Every method of these Google APIs is available, with Google's own documentation on each method:
 
-```php
-$calendar = $workspace->services()->calendar(); // Google\Service\Calendar
-$events = $calendar->events->listEvents('primary');
-```
+| API | Accessor | Resources | Methods |
+|-----|----------|-----------|---------|
+| Admin SDK Directory | `directory()` | 28 | 128 |
+| Classroom | `classroom()` | 24 | 104 |
+| Calendar | `calendar()` | 8 | 38 |
+| Gmail | `gmail()` | 15 | 79 |
+| Drive | `drive()` | 14 | 64 |
+
+Users and groups also have the friendlier repositories documented above.
 
 ## Security Best Practices
 
@@ -497,6 +572,8 @@ $events = $calendar->events->listEvents('primary');
 4. **Tune retries** - Raise `retry.max_attempts` for large jobs that hit rate limits
 
 ## Contributing
+
+The API wrappers in `src/Api/{Directory,Classroom,Calendar,Gmail,Drive}` are generated. Don't edit them by hand: run `composer generate-api` after updating `google/apiclient-services` to pick up new Google endpoints.
 
 Contributions are welcome! Please include tests, and run `composer test`, `composer lint` and `composer analyze` before opening a pull request (CI runs all three).
 

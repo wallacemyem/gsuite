@@ -56,6 +56,7 @@ The original Google exception is always available via `$e->getPrevious()`.
 
 ### New
 
+- Every method of the Directory, Classroom, Calendar, Gmail and Drive APIs via `directory()`, `classroom()`, `calendar()`, `gmail()` and `drive()`, plus `asUser()` to act as another user. If you were calling `services()->gmail()` etc. directly, that still works, but the wrappers add error mapping, audit logging and the safety rules.
 - `users()->all()` / `groups()->all()` iterate every page lazily.
 - `$workspace->batch()` sends bulk creates and membership changes as Google batch requests.
 

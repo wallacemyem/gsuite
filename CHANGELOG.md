@@ -12,7 +12,8 @@ See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
 
 ### Security
 - Protected (`undeletable`) users and groups can no longer be deleted via a different-case email, an alias or their ID
-- Protected users cannot be suspended; protected users and groups cannot be renamed
+- Protected users cannot be suspended (including via `update()`); protected users and groups cannot be renamed
+- Assigning the Super Admin role is subject to `allow_admin_promotion`, like `makeAdmin()`
 - `makeAdmin()` is disabled unless `allow_admin_promotion` is enabled
 - Default scopes reduced to users and groups
 - All user changes are audit logged
@@ -27,6 +28,9 @@ See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
 - The `GSuite` facade alias points at an existing class
 
 ### Added
+- Every method of the Directory, Classroom, Calendar, Gmail and Drive APIs (413 methods across 89 resources) via `directory()`, `classroom()`, `calendar()`, `gmail()` and `drive()`, generated from google/apiclient-services with error mapping, audit logging and the safety rules
+- `asUser()` to act as another user through domain-wide delegation
+- `paginate()` on every API resource to iterate list methods across pages
 - `all()` pagination helpers on users and groups
 - Real Google batch requests in `BatchOperations`, available via `$workspace->batch()`
 - `UsersRepositoryContract` and `GroupsRepositoryContract` for dependency injection and mocking
