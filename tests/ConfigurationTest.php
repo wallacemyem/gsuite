@@ -19,10 +19,12 @@ use Google\Service\Gmail;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Orchestra\Testbench\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ConfigurationTest extends TestCase
 {
@@ -94,6 +96,58 @@ class ConfigurationTest extends TestCase
         $mock = new MockHandler([new Response(503), new Response(200)]);
         $this->assertSame(503, $this->httpClientWith($mock)->send($request)->getStatusCode());
         $this->assertSame(1, $mock->count());
+    }
+
+    public static function ambiguousFailures(): array
+    {
+        // The request may have reached Google: read timeout, dropped connection, empty reply
+        return [
+            'read timeout' => ['cURL error 28: Operation timed out after 60000 milliseconds with 0 bytes received'],
+            'empty reply' => ['cURL error 52: Empty reply from server'],
+            'connection reset' => ['cURL error 56: Recv failure: Connection reset by peer'],
+            'no error code' => ['Connection closed unexpectedly'],
+        ];
+    }
+
+    #[DataProvider('ambiguousFailures')]
+    public function test_non_idempotent_requests_are_not_resent_after_ambiguous_failures(string $error)
+    {
+        config()->set('google-workspace.retry', ['max_attempts' => 3, 'delay_ms' => 0]);
+        $insert = new Request('POST', 'https://www.googleapis.com/calendar/v3/calendars/primary/events');
+
+        foreach ([ConnectException::class, RequestException::class] as $class) {
+            $mock = new MockHandler([new $class($error, $insert), new Response(200)]);
+            try {
+                $this->httpClientWith($mock)->send($insert);
+                $this->fail("{$class} on a POST must not be retried: it may already have created the event");
+            } catch (TransferException) {
+                $this->assertSame(1, $mock->count(), "{$class} on a POST must not be retried");
+            }
+        }
+
+        // The same failure on an idempotent request is retried
+        $get = new Request('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events');
+        $mock = new MockHandler([new ConnectException($error, $get), new Response(200)]);
+        $this->assertSame(200, $this->httpClientWith($mock)->send($get)->getStatusCode());
+    }
+
+    public static function failuresBeforeSending(): array
+    {
+        return [
+            'dns' => ['cURL error 6: Could not resolve host: www.googleapis.com'],
+            'connection refused' => ['cURL error 7: Failed to connect to www.googleapis.com port 443'],
+            'tls handshake' => ['cURL error 35: OpenSSL SSL_connect: Connection reset by peer'],
+        ];
+    }
+
+    #[DataProvider('failuresBeforeSending')]
+    public function test_non_idempotent_requests_are_retried_when_the_connection_never_opened(string $error)
+    {
+        config()->set('google-workspace.retry', ['max_attempts' => 3, 'delay_ms' => 0]);
+        $insert = new Request('POST', 'https://www.googleapis.com/calendar/v3/calendars/primary/events');
+
+        $mock = new MockHandler([new ConnectException($error, $insert), new Response(200)]);
+        $this->assertSame(200, $this->httpClientWith($mock)->send($insert)->getStatusCode());
     }
 
     private function httpClientWith(MockHandler $mock): ClientInterface

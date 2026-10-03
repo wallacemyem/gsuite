@@ -6,6 +6,7 @@ use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use Google\Client;
 use Google\Task\Runner;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\ConnectTimeoutException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
@@ -105,28 +106,67 @@ class GoogleWorkspaceClient
     }
 
     /**
-     * Retry when no HTTP response was received: DNS, connection and TLS failures,
-     * timeouts and dropped connections. Error responses are left to Google's runner
-     * so they are never retried twice.
+     * HTTP methods that can be repeated without changing the result.
+     */
+    private const IDEMPOTENT_METHODS = ['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE'];
+
+    /**
+     * cURL errors raised before the request is sent (DNS, proxy, TCP connect, TLS
+     * handshake), so the request certainly never reached Google.
+     */
+    private const NOT_SENT_CURL_ERRORS = [5, 6, 7, 35, 51, 60, 83, 90, 91, 96, 97, 98, 101];
+
+    /**
+     * Retry when no HTTP response was received. Error responses are left to Google's
+     * runner so they are never retried twice.
+     *
+     * A timeout or dropped connection may happen after Google has processed the
+     * request, so non-idempotent requests (POST, PATCH: inserts, sends, moves) are
+     * only retried when the connection was never established; otherwise a retry
+     * could, for example, create a duplicate calendar event or send an email twice.
      */
     private function shouldRetryTransport(int $retries, RequestInterface $request, ?ResponseInterface $response = null, ?\Throwable $exception = null): bool
     {
-        if ($retries >= $this->maxAttempts() - 1 || $response !== null) {
+        if ($retries >= $this->maxAttempts() - 1 || $response !== null || ! $exception instanceof TransferException) {
             return false;
         }
 
         // Guzzle 7 keeps the response on RequestException, Guzzle 8 only on its subclasses
-        $retry = $exception instanceof TransferException
-            && ! (method_exists($exception, 'getResponse') && $exception->getResponse() !== null);
+        if (method_exists($exception, 'getResponse') && $exception->getResponse() !== null) {
+            return false;
+        }
+
+        $retry = in_array(strtoupper($request->getMethod()), self::IDEMPOTENT_METHODS, true)
+            || $this->neverSent($exception);
 
         if ($retry) {
             $this->logger->warning('Retrying Google API request after a network error', [
                 'attempt' => $retries + 1,
+                'method' => $request->getMethod(),
                 'error' => $exception->getMessage(),
             ]);
         }
 
         return $retry;
+    }
+
+    /**
+     * Whether the failure provably happened before the request was sent. Guzzle 7
+     * reports read timeouts and empty replies as ConnectException too, so the
+     * exception class alone is not enough: rely on the cURL error number.
+     */
+    private function neverSent(TransferException $exception): bool
+    {
+        // Guzzle 8 distinguishes a timeout while connecting from one while waiting for a reply
+        if (class_exists(ConnectTimeoutException::class)
+            && $exception instanceof ConnectTimeoutException) {
+            return true;
+        }
+
+        $context = method_exists($exception, 'getHandlerContext') ? $exception->getHandlerContext() : [];
+        $errno = $context['errno'] ?? (preg_match('/cURL error (\d+)/', $exception->getMessage(), $m) ? (int) $m[1] : null);
+
+        return $errno !== null && in_array((int) $errno, self::NOT_SENT_CURL_ERRORS, true);
     }
 
     /**
