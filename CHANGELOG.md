@@ -2,9 +2,9 @@
 
 All notable changes to `gsuite` will be documented in this file
 
-## 4.0.0 - Unreleased
+## 3.0.0 - 2026-10-03
 
-See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
+See [MIGRATION.md](MIGRATION.md#upgrading-from-2x-to-30) for upgrade notes.
 
 ### Changed
 - Requires Laravel 12 or 13; support for end-of-life Laravel 10 and 11 is dropped
@@ -23,7 +23,7 @@ See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
 - `unsuspend()` actually unsuspends; `suspend()` no longer blanks names or forces a password reset
 - `phone` and `title` are sent to the API
 - Errors map to the real cause (not found, access denied, rate limit, connection) instead of all being "not found" or generic
-- `retry`, `timeouts` and `logging` settings are applied
+- `retry`, `timeouts` and `logging` settings are applied; network failures (DNS, connection, timeouts) are retried, not only error responses
 - A missing admin subject gives a clear configuration error
 - The `GSuite` facade alias points at an existing class
 
@@ -34,6 +34,10 @@ See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
 - `all()` pagination helpers on users and groups
 - Real Google batch requests in `BatchOperations`, available via `$workspace->batch()`
 - `UsersRepositoryContract` and `GroupsRepositoryContract` for dependency injection and mocking
+
+## 2.1 / 2.0 - 2026-03-27
+
+- Modern rewrite as `brickservers/gsuite`: repositories, DTOs, enums and custom exceptions (see [MIGRATION.md](MIGRATION.md#upgrading-from-wyattcast44gsuite))
 
 ## 1.0.0 - 201X-XX-XX
 
