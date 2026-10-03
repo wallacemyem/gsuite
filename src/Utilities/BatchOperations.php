@@ -7,6 +7,7 @@ use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
 use BrickServers\GoogleWorkspace\DTOs\UserDTO;
 use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use Google\Service\Directory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -56,11 +57,11 @@ class BatchOperations
 
         $batched = $this->batch(
             $valid,
-            function (UserDTO $user) {
+            function (UserDTO $user, Directory $directory) {
                 $payload = $user->toArray();
                 $payload['changePasswordAtNextLogin'] ??= true;
 
-                return $this->services->directory()->users->insert(new \Google_Service_Directory_User($payload));
+                return $directory->users->insert(new \Google_Service_Directory_User($payload));
             },
             fn (UserDTO $user, $response) => UserDTO::fromArray((array)$response),
             fn (UserDTO $user) => ['user' => $user->email],
@@ -99,7 +100,7 @@ class BatchOperations
 
         return $this->batch(
             array_values($memberEmails),
-            fn (string $email) => $this->services->directory()->members->insert(
+            fn (string $email, Directory $directory) => $directory->members->insert(
                 $groupEmail,
                 new \Google_Service_Directory_Member(['email' => $email]),
             ),
@@ -124,7 +125,7 @@ class BatchOperations
 
         return $this->batch(
             array_values($memberEmails),
-            fn (string $email) => $this->services->directory()->members->delete($groupEmail, $email),
+            fn (string $email, Directory $directory) => $directory->members->delete($groupEmail, $email),
             fn (string $email) => $email,
             fn (string $email) => ['email' => $email],
             'Member removed from group',
@@ -153,7 +154,7 @@ class BatchOperations
     /**
      * Send one Google batch request per chunk of items.
      *
-     * @param callable $makeRequest builds the (deferred) API request for an item
+     * @param callable $makeRequest builds the (deferred) API request for an item and the Directory service
      * @param callable $onSuccess maps an item and its response to a success entry
      * @param callable $describe identifies an item in a failure entry
      */
@@ -166,7 +167,7 @@ class BatchOperations
         array $logContext = [],
     ): array {
         $results = ['success' => [], 'failed' => []];
-        $directory = $this->services->directory();
+        $directory = ($this->services ?? throw new \LogicException('Batch requests need a services factory'))->directory();
         $client = $directory->getClient();
 
         foreach (array_chunk($items, self::MAX_BATCH_SIZE) as $chunk) {
@@ -174,7 +175,7 @@ class BatchOperations
             try {
                 $batch = $directory->createBatch();
                 foreach ($chunk as $i => $item) {
-                    $batch->add($makeRequest($item), "item-{$i}");
+                    $batch->add($makeRequest($item, $directory), "item-{$i}");
                 }
             } finally {
                 $client->setUseBatch(false);

@@ -1,0 +1,7 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    ignoreErrors:
+        # Array shapes are documented in docblocks where they matter
+        - identifier: missingType.iterableValue
