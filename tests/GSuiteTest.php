@@ -224,7 +224,7 @@ class GSuiteTest extends TestCase
         $services = $this->createMock(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
-        $repo = new UsersRepository($services, 'example.com', ['root@example.com']);
+        $repo = new UsersRepository($services, 'example.com', ['root@example.com'], allowAdminPromotion: true);
 
         $created = $repo->create(new UserDTO('john@example.com', 'John', 'Doe', 'Password123'));
         $this->assertSame('john@example.com', $created->email);

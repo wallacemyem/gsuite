@@ -4,9 +4,14 @@ namespace BrickServers\GoogleWorkspace;
 
 use Illuminate\Support\ServiceProvider;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
+use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
+use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
+use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Google Workspace Service Provider
@@ -30,7 +35,9 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
                 credentialsPath: (string) config('google-workspace.credentials_path'),
                 subject: (string) config('google-workspace.subject'),
                 scopes: config('google-workspace.scopes', []),
-                logger: app('log'),
+                logger: $this->logger(),
+                retry: config('google-workspace.retry', []),
+                timeouts: config('google-workspace.timeouts', []),
             );
         });
 
@@ -38,36 +45,39 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
         $this->app->singleton(GoogleServicesFactory::class, function () {
             return new GoogleServicesFactory(
                 app(GoogleWorkspaceClient::class),
-                app('log'),
+                $this->logger(),
             );
         });
 
         // Register Users Repository
         $this->app->singleton(UsersRepository::class, function () {
-            $undeletableUsers = config('google-workspace.undeletable.users', []);
-            if (is_string($undeletableUsers)) {
-                $undeletableUsers = array_filter(array_map('trim', explode(',', $undeletableUsers)));
-            }
-
             return new UsersRepository(
                 services: app(GoogleServicesFactory::class),
-                domain: config('google-workspace.domain'),
-                undeletableUsers: $undeletableUsers,
+                domain: (string) config('google-workspace.domain'),
+                undeletableUsers: $this->protectedList('users'),
+                logger: $this->logger(),
+                allowAdminPromotion: filter_var(config('google-workspace.allow_admin_promotion', false), FILTER_VALIDATE_BOOL),
             );
         });
+        $this->app->alias(UsersRepository::class, UsersRepositoryContract::class);
 
         // Register Groups Repository
         $this->app->singleton(GroupsRepository::class, function () {
-            $undeletableGroups = config('google-workspace.undeletable.groups', []);
-            if (is_string($undeletableGroups)) {
-                $undeletableGroups = array_filter(array_map('trim', explode(',', $undeletableGroups)));
-            }
-
             return new GroupsRepository(
                 services: app(GoogleServicesFactory::class),
-                domain: config('google-workspace.domain'),
-                logger: app('log'),
-                undeletableGroups: $undeletableGroups,
+                domain: (string) config('google-workspace.domain'),
+                logger: $this->logger(),
+                undeletableGroups: $this->protectedList('groups'),
+            );
+        });
+        $this->app->alias(GroupsRepository::class, GroupsRepositoryContract::class);
+
+        $this->app->singleton(BatchOperations::class, function () {
+            return new BatchOperations(
+                app(UsersRepositoryContract::class),
+                app(GroupsRepositoryContract::class),
+                app(GoogleServicesFactory::class),
+                $this->logger(),
             );
         });
 
@@ -75,8 +85,8 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
         $this->app->singleton('google-workspace', function () {
             return new GoogleWorkspace(
                 services: app(GoogleServicesFactory::class),
-                users: app(UsersRepository::class),
-                groups: app(GroupsRepository::class),
+                users: app(UsersRepositoryContract::class),
+                groups: app(GroupsRepositoryContract::class),
             );
         });
 
@@ -84,12 +94,39 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
         $this->app->alias('google-workspace', 'gsuite');
     }
 
+    private function logger(): LoggerInterface
+    {
+        if (!filter_var(config('google-workspace.logging.enabled', true), FILTER_VALIDATE_BOOL)) {
+            return new NullLogger();
+        }
+
+        $channel = config('google-workspace.logging.channel');
+
+        return $channel ? app('log')->channel($channel) : app('log');
+    }
+
+    private function protectedList(string $type): array
+    {
+        $list = config("google-workspace.undeletable.{$type}", []);
+        if (is_string($list)) {
+            $list = explode(',', $list);
+        }
+
+        return array_values(array_filter(array_map('trim', (array) $list)));
+    }
+
     public function provides(): array
     {
         return [
             GoogleWorkspaceClient::class,
             GoogleServicesFactory::class,
+            UsersRepository::class,
+            UsersRepositoryContract::class,
+            GroupsRepository::class,
+            GroupsRepositoryContract::class,
+            BatchOperations::class,
             'google-workspace',
+            'gsuite',
         ];
     }
 }

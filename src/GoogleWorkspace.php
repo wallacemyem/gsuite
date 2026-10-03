@@ -6,18 +6,23 @@ class GoogleWorkspace
 {
     public function __construct(
         private readonly Services\GoogleServicesFactory $services,
-        private readonly Repositories\UsersRepository $users,
-        private readonly Repositories\GroupsRepository $groups,
+        private readonly Contracts\UsersRepositoryContract $users,
+        private readonly Contracts\GroupsRepositoryContract $groups,
     ) {}
 
-    public function users(): Repositories\UsersRepository
+    public function users(): Contracts\UsersRepositoryContract
     {
         return $this->users;
     }
 
-    public function groups(): Repositories\GroupsRepository
+    public function groups(): Contracts\GroupsRepositoryContract
     {
         return $this->groups;
+    }
+
+    public function batch(): Utilities\BatchOperations
+    {
+        return app(Utilities\BatchOperations::class);
     }
 
     public function services(): Services\GoogleServicesFactory

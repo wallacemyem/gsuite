@@ -2,6 +2,9 @@
 
 namespace BrickServers\GoogleWorkspace\DTOs;
 
+/**
+ * Null fields are "not set" and are left out of API requests.
+ */
 readonly class GroupDTO
 {
     public function __construct(
@@ -22,9 +25,9 @@ readonly class GroupDTO
     public function toArray(): array
     {
         return array_filter([
-            'email' => $this->email,
+            'email' => $this->email !== '' ? $this->email : null,
             'name' => $this->name,
             'description' => $this->description,
-        ]);
+        ], fn ($value) => $value !== null);
     }
 }

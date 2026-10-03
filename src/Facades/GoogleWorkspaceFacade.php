@@ -3,13 +3,14 @@
 namespace BrickServers\GoogleWorkspace\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
-use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
+use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
+use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 
 /**
- * @method static UsersRepository users()
- * @method static GroupsRepository groups()
+ * @method static UsersRepositoryContract users()
+ * @method static GroupsRepositoryContract groups()
+ * @method static \BrickServers\GoogleWorkspace\Utilities\BatchOperations batch()
  * @method static GoogleServicesFactory services()
  *
  * @see \BrickServers\GoogleWorkspace\GoogleWorkspace
