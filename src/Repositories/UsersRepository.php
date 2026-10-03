@@ -17,7 +17,7 @@ class UsersRepository
         private readonly string $domain,
         array $undeletableUsers = [],
     ) {
-        $this->undeletableUsers = $undeletableUsers;
+        $this->undeletableUsers = array_map('strtolower', $undeletableUsers);
     }
 
     public function create(UserDTO $user): UserDTO
@@ -78,9 +78,16 @@ class UsersRepository
     public function update(string $userKey, UserDTO $updates): UserDTO
     {
         try {
-            $googleUser = new \Google_Service_Directory_User(array_filter($updates->toArray()));
-            $response = $this->services->directory()->users->update($userKey, $googleUser);
-            return UserDTO::fromArray((array)$response);
+            $payload = array_filter($updates->toArray());
+            // Don't blank out a user's name when only some name parts are supplied
+            $payload['name'] = array_filter($payload['name'] ?? []);
+            if (!$payload['name']) {
+                unset($payload['name']);
+            }
+
+            return $this->patch($userKey, $payload);
+        } catch (GoogleWorkspaceException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::apiError("Failed to update user: {$e->getMessage()}", $e);
         }
@@ -89,9 +96,7 @@ class UsersRepository
     public function delete(string $userKey): bool
     {
         try {
-            if (in_array($userKey, $this->undeletableUsers)) {
-                throw GoogleWorkspaceException::undeletableResource('User', $userKey);
-            }
+            $this->assertDeletable($userKey);
             $this->services->directory()->users->delete($userKey);
             return true;
         } catch (GoogleWorkspaceException $e) {
@@ -103,14 +108,51 @@ class UsersRepository
 
     public function suspend(string $userKey): UserDTO
     {
-        $user = new UserDTO($userKey, '', '', suspended: true);
-        return $this->update($userKey, $user);
+        return $this->patch($userKey, ['suspended' => true]);
     }
 
     public function unsuspend(string $userKey): UserDTO
     {
-        $user = new UserDTO($userKey, '', '', suspended: false);
-        return $this->update($userKey, $user);
+        return $this->patch($userKey, ['suspended' => false]);
+    }
+
+    private function patch(string $userKey, array $fields): UserDTO
+    {
+        try {
+            $googleUser = new \Google_Service_Directory_User($fields);
+            $response = $this->services->directory()->users->update($userKey, $googleUser);
+            return UserDTO::fromArray((array)$response);
+        } catch (\Exception $e) {
+            throw GoogleWorkspaceException::apiError("Failed to update user: {$e->getMessage()}", $e);
+        }
+    }
+
+    /**
+     * The API accepts a primary email (any case), an alias or the immutable user ID as
+     * the key, so resolve the user and check every identifier against the protected list.
+     */
+    private function assertDeletable(string $userKey): void
+    {
+        if (in_array(strtolower($userKey), $this->undeletableUsers, true)) {
+            throw GoogleWorkspaceException::undeletableResource('User', $userKey);
+        }
+
+        if (!$this->undeletableUsers) {
+            return;
+        }
+
+        $user = $this->services->directory()->users->get($userKey, []);
+        $identifiers = array_merge(
+            [$user->primaryEmail ?? null, $user->id ?? null],
+            (array)($user->aliases ?? []),
+            (array)($user->nonEditableAliases ?? []),
+        );
+
+        foreach ($identifiers as $identifier) {
+            if (is_string($identifier) && in_array(strtolower($identifier), $this->undeletableUsers, true)) {
+                throw GoogleWorkspaceException::undeletableResource('User', $userKey);
+            }
+        }
     }
 
     public function addAlias(string $userKey, string $alias): bool
@@ -151,7 +193,7 @@ class UsersRepository
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw GoogleWorkspaceException::validationError('email', 'Invalid email format');
         }
-        if (!str_ends_with($email, '@' . $this->domain)) {
+        if (!str_ends_with(strtolower($email), '@' . strtolower($this->domain))) {
             throw GoogleWorkspaceException::validationError('email', "Email must be in domain @{$this->domain}");
         }
     }

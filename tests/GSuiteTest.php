@@ -337,4 +337,138 @@ class GSuiteTest extends TestCase
         $this->expectException(GoogleWorkspaceException::class);
         $repo->delete('rootgroup@example.com');
     }
+
+    private function fakeUsersRepository(array &$updates, array $undeletable = ['root@example.com']): UsersRepository
+    {
+        $usersResource = new class($updates) {
+            public function __construct(private array &$updates) {}
+
+            public function get($userKey, $options = [])
+            {
+                // The protected admin is reachable via its ID, its alias and any casing of its email
+                if (in_array(strtolower($userKey), ['root@example.com', '1001', 'admin-alias@example.com'], true)) {
+                    return new \Google\Service\Directory\User([
+                        'primaryEmail' => 'root@example.com',
+                        'id' => '1001',
+                        'aliases' => ['admin-alias@example.com'],
+                    ]);
+                }
+
+                return new \Google\Service\Directory\User(['primaryEmail' => $userKey, 'id' => '2002']);
+            }
+
+            public function update($userKey, $user)
+            {
+                $this->updates[] = $user->toSimpleObject();
+
+                return new \Google\Service\Directory\User(['primaryEmail' => $userKey, 'suspended' => $user->suspended]);
+            }
+
+            public function delete($userKey)
+            {
+                return null;
+            }
+        };
+
+        $directory = new class(new \Google\Client(), $usersResource) extends \Google\Service\Directory {
+            public $users;
+
+            public function __construct($client, $users)
+            {
+                parent::__construct($client);
+                $this->users = $users;
+            }
+        };
+
+        $services = $this->createMock(GoogleServicesFactory::class);
+        $services->method('directory')->willReturn($directory);
+
+        return new UsersRepository($services, 'example.com', $undeletable);
+    }
+
+    public static function protectedUserKeys(): array
+    {
+        return [
+            'different case' => ['ROOT@Example.com'],
+            'user id' => ['1001'],
+            'alias' => ['admin-alias@example.com'],
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('protectedUserKeys')]
+    public function test_protected_users_cannot_be_deleted_via_alternate_keys(string $key)
+    {
+        $updates = [];
+        $repo = $this->fakeUsersRepository($updates);
+
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionCode(6);
+        $repo->delete($key);
+    }
+
+    public function test_unprotected_users_can_still_be_deleted()
+    {
+        $updates = [];
+        $this->assertTrue($this->fakeUsersRepository($updates)->delete('someone@example.com'));
+    }
+
+    public function test_suspend_and_unsuspend_only_send_the_suspended_flag()
+    {
+        $updates = [];
+        $repo = $this->fakeUsersRepository($updates);
+
+        $this->assertTrue($repo->suspend('john@example.com')->suspended);
+        $this->assertFalse($repo->unsuspend('john@example.com')->suspended);
+
+        $this->assertEquals([(object)['suspended' => true], (object)['suspended' => false]], $updates);
+    }
+
+    public function test_update_does_not_blank_omitted_name_parts()
+    {
+        $updates = [];
+        $this->fakeUsersRepository($updates)->update('john@example.com', new UserDTO('john@example.com', 'Johnny', ''));
+
+        $this->assertEquals((object)['givenName' => 'Johnny'], $updates[0]->name);
+    }
+
+    public function test_protected_groups_cannot_be_deleted_via_alternate_keys()
+    {
+        $groupResource = new class {
+            public function get($groupKey)
+            {
+                return new \Google\Service\Directory\Group(['email' => 'rootgroup@example.com', 'id' => 'g-1']);
+            }
+
+            public function delete($groupKey)
+            {
+                return null;
+            }
+        };
+
+        $directory = new class(new \Google\Client(), $groupResource) extends \Google\Service\Directory {
+            public $groups;
+
+            public function __construct($client, $groups)
+            {
+                parent::__construct($client);
+                $this->groups = $groups;
+            }
+        };
+
+        $services = $this->createMock(GoogleServicesFactory::class);
+        $services->method('directory')->willReturn($directory);
+
+        $repo = new GroupsRepository($services, 'example.com', null, ['RootGroup@example.com']);
+
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionCode(6);
+        $repo->delete('g-1');
+    }
+
+    public function test_client_requires_an_admin_subject()
+    {
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionMessage('subject');
+        \BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient::make(sys_get_temp_dir() . '/google-workspace-test-credentials.json', '');
+    }
 }

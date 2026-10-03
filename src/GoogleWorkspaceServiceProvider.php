@@ -7,7 +7,6 @@ use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
-use BrickServers\GoogleWorkspace\Enums\ApiScope;
 
 /**
  * Google Workspace Service Provider
@@ -28,8 +27,8 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
         // Register Google Client
         $this->app->singleton(GoogleWorkspaceClient::class, function () {
             return GoogleWorkspaceClient::make(
-                credentialsPath: config('google-workspace.credentials_path'),
-                subject: config('google-workspace.subject'),
+                credentialsPath: (string) config('google-workspace.credentials_path'),
+                subject: (string) config('google-workspace.subject'),
                 scopes: config('google-workspace.scopes', []),
                 logger: app('log'),
             );

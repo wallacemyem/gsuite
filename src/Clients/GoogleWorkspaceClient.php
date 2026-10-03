@@ -32,6 +32,12 @@ class GoogleWorkspaceClient
                 throw GoogleWorkspaceException::missingCredentials();
             }
 
+            if (trim($this->subject) === '') {
+                throw GoogleWorkspaceException::invalidConfiguration(
+                    'An admin subject (GOOGLE_WORKSPACE_SUBJECT) is required for domain-wide delegation'
+                );
+            }
+
             $this->client = new Client();
             $this->client->setAuthConfig($this->credentialsPath);
             $this->client->setScopes($this->scopes);

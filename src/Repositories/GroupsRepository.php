@@ -20,7 +20,7 @@ class GroupsRepository
         array $undeletableGroups = [],
     ) {
         $this->logger = $logger ?? new NullLogger();
-        $this->undeletableGroups = $undeletableGroups;
+        $this->undeletableGroups = array_map('strtolower', $undeletableGroups);
     }
 
     public function create(GroupDTO $group): GroupDTO
@@ -80,9 +80,7 @@ class GroupsRepository
     public function delete(string $groupKey): bool
     {
         try {
-            if (in_array($groupKey, $this->undeletableGroups)) {
-                throw GoogleWorkspaceException::undeletableResource('Group', $groupKey);
-            }
+            $this->assertDeletable($groupKey);
             $this->services->directory()->groups->delete($groupKey);
             $this->logger->info('Group deleted', ['groupKey' => $groupKey]);
             return true;
@@ -113,6 +111,34 @@ class GroupsRepository
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::apiError("Failed to remove member: {$e->getMessage()}", $e);
+        }
+    }
+
+    /**
+     * The API accepts a group email (any case), an alias or the immutable group ID as
+     * the key, so resolve the group and check every identifier against the protected list.
+     */
+    private function assertDeletable(string $groupKey): void
+    {
+        if (in_array(strtolower($groupKey), $this->undeletableGroups, true)) {
+            throw GoogleWorkspaceException::undeletableResource('Group', $groupKey);
+        }
+
+        if (!$this->undeletableGroups) {
+            return;
+        }
+
+        $group = $this->services->directory()->groups->get($groupKey);
+        $identifiers = array_merge(
+            [$group->email ?? null, $group->id ?? null],
+            (array)($group->aliases ?? []),
+            (array)($group->nonEditableAliases ?? []),
+        );
+
+        foreach ($identifiers as $identifier) {
+            if (is_string($identifier) && in_array(strtolower($identifier), $this->undeletableGroups, true)) {
+                throw GoogleWorkspaceException::undeletableResource('Group', $groupKey);
+            }
         }
     }
 }
