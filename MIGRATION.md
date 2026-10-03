@@ -1,4 +1,68 @@
-# Migration Guide: v2 to v3
+# Migration Guide
+
+## Upgrading from 3.x to 4.0
+
+4.0 fixes several behaviour bugs and tightens security defaults. Most code keeps working, but review these changes:
+
+### Requirements
+
+- Laravel 12 or 13. Laravel 10 and 11 are end-of-life and no longer supported; stay on 3.x until you upgrade Laravel.
+- PHP 8.2+ (Laravel 13 itself requires PHP 8.3+).
+
+### `UserDTO` fields are nullable, and `null` means "don't change"
+
+Previously `changePasswordAtNextLogin` defaulted to `true` and `suspended` to `false`, and `update()` silently dropped every `false` value. That meant **every `update()` call forced a password reset**, and nothing could be set back to `false`.
+
+Now `givenName`, `familyName`, `changePasswordAtNextLogin` and `suspended` default to `null` and are only sent when set:
+
+```php
+// 3.x: also forced a password reset
+// 4.0: only changes the first name
+$workspace->users()->update($email, new UserDTO(email: $email, givenName: 'Johnny'));
+```
+
+- `create()` still defaults `changePasswordAtNextLogin` to `true`, and now requires `givenName` and `familyName` (validation error, code 4).
+- If you read DTOs returned by the API, `givenName`/`familyName` are `null` (not `''`) when missing.
+- `phone` and `title` are now actually sent. Note `title` replaces the user's `organizations` list with a single entry.
+- An `update()` with no fields set throws `invalidArgument` (code 8).
+
+### Exception codes reflect the real error
+
+| Situation | 3.x | 4.0 |
+|-----------|-----|-----|
+| `get()` on anything that fails | 5 (not found) | 5 only for 404; 403 access denied; 429 rate limit; 3 other |
+| Other methods, 404 from Google | 3 | 5 |
+| 401/403 from Google | 3 | 403 |
+| 429 / quota exceeded | 3 | 429 |
+| Network failure | 3 | 7 |
+| `create()` validation failure | 3 (wrapped) | 4 |
+
+The original Google exception is always available via `$e->getPrevious()`.
+
+### Safer defaults
+
+- `makeAdmin()` throws access denied (403) unless `allow_admin_promotion` / `GOOGLE_WORKSPACE_ALLOW_ADMIN_PROMOTION` is `true`.
+- Protected (`undeletable`) users cannot be suspended, and protected users and groups cannot be renamed (code 6).
+- Default scopes are only `admin.directory.user` and `admin.directory.group`. If you published the config, your scopes are unchanged; otherwise add any others you use.
+- Audit logging is on by default (`GOOGLE_WORKSPACE_LOGGING`), to your default channel unless `GOOGLE_WORKSPACE_LOG_CHANNEL` is set. In 3.x the logging settings were ignored and messages always went to the default channel.
+
+### Settings that now take effect
+
+`retry.max_attempts`, `retry.delay_ms`, `timeouts.connect` and `timeouts.read` were ignored in 3.x; they now configure retries and HTTP timeouts. `retry.max_attempts` is the total number of attempts (default 3).
+
+### Type hints
+
+`GoogleWorkspace::users()` and `groups()` now return `UsersRepositoryContract` and `GroupsRepositoryContract`. The concrete repositories implement them, so existing code is unaffected unless you extend `GoogleWorkspace`.
+
+### New
+
+- Every method of the Directory, Classroom, Calendar, Gmail and Drive APIs via `directory()`, `classroom()`, `calendar()`, `gmail()` and `drive()`, plus `asUser()` to act as another user. If you were calling `services()->gmail()` etc. directly, that still works, but the wrappers add error mapping, audit logging and the safety rules.
+- `users()->all()` / `groups()->all()` iterate every page lazily.
+- `$workspace->batch()` sends bulk creates and membership changes as Google batch requests.
+
+---
+
+## Upgrading from v2 (wyattcast44/gsuite) to v3
 
 This guide helps you upgrade from the old Google Workspace package to the modern v3 implementation.
 
@@ -373,9 +437,7 @@ Check logs in `storage/logs/laravel.log`
 For issues or questions:
 
 1. Check the [README.md](README.md)
-2. Review [api.md](api.md)
-3. See [EXAMPLES.md](EXAMPLES.md)
-4. Open an issue on [GitHub](https://github.com/brickservers/gsuite)
+2. Open an issue on [GitHub](https://github.com/brickservers/gsuite)
 
 ## Need to Keep Old Version?
 

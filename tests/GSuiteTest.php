@@ -2,16 +2,22 @@
 
 namespace BrickServers\GoogleWorkspace\Tests;
 
+use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
+use BrickServers\GoogleWorkspace\DTOs\GroupDTO;
+use BrickServers\GoogleWorkspace\DTOs\UserDTO;
+use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
+use BrickServers\GoogleWorkspace\Facades\GoogleWorkspaceFacade;
 use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider;
-use BrickServers\GoogleWorkspace\Facades\GoogleWorkspaceFacade;
-use BrickServers\GoogleWorkspace\DTOs\UserDTO;
-use BrickServers\GoogleWorkspace\DTOs\GroupDTO;
-use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
-use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
+use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use Google\Client;
+use Google\Service\Directory;
+use Google\Service\Directory\Group;
+use Google\Service\Directory\User;
 use Orchestra\Testbench\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class GSuiteTest extends TestCase
 {
@@ -31,9 +37,9 @@ class GSuiteTest extends TestCase
 
     protected function getEnvironmentSetUp($app)
     {
-        $tmpFile = sys_get_temp_dir() . '/google-workspace-test-credentials.json';
+        $tmpFile = sys_get_temp_dir().'/google-workspace-test-credentials.json';
 
-        if (!file_exists($tmpFile)) {
+        if (! file_exists($tmpFile)) {
             file_put_contents($tmpFile, json_encode([
                 'type' => 'service_account',
                 'project_id' => 'test-project',
@@ -55,7 +61,7 @@ class GSuiteTest extends TestCase
 
     protected function tearDown(): void
     {
-        $tmpFile = sys_get_temp_dir() . '/google-workspace-test-credentials.json';
+        $tmpFile = sys_get_temp_dir().'/google-workspace-test-credentials.json';
 
         if (file_exists($tmpFile)) {
             @unlink($tmpFile);
@@ -119,10 +125,11 @@ class GSuiteTest extends TestCase
 
     public function test_users_repository_works_with_fake_directory_services()
     {
-        $usersResource = new class {
+        $usersResource = new class
+        {
             public function insert($user)
             {
-                return (object)[
+                return (object) [
                     'primaryEmail' => $user->primaryEmail,
                     'name' => ['givenName' => $user->name->givenName, 'familyName' => $user->name->familyName],
                     'changePasswordAtNextLogin' => $user->changePasswordAtNextLogin,
@@ -138,7 +145,7 @@ class GSuiteTest extends TestCase
                     throw new \Exception('not found');
                 }
 
-                return (object)[
+                return (object) [
                     'primaryEmail' => 'john@example.com',
                     'name' => ['givenName' => 'John', 'familyName' => 'Doe'],
                     'changePasswordAtNextLogin' => false,
@@ -150,10 +157,11 @@ class GSuiteTest extends TestCase
 
             public function listUsers($options)
             {
-                return new class {
+                return new class
+                {
                     public function getUsers()
                     {
-                        return [(object)[
+                        return [(object) [
                             'primaryEmail' => 'user1@example.com',
                             'name' => ['givenName' => 'User1', 'familyName' => 'Example'],
                             'changePasswordAtNextLogin' => false,
@@ -172,7 +180,7 @@ class GSuiteTest extends TestCase
 
             public function update($userKey, $user)
             {
-                return (object)[
+                return (object) [
                     'primaryEmail' => $userKey,
                     'name' => ['givenName' => 'Updated', 'familyName' => 'Name'],
                     'changePasswordAtNextLogin' => false,
@@ -197,7 +205,8 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $aliasResource = new class {
+        $aliasResource = new class
+        {
             public function insert($userKey, $alias)
             {
                 return null;
@@ -209,8 +218,10 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $directory = new class(new \Google\Client(), $usersResource, $aliasResource) extends \Google\Service\Directory {
+        $directory = new class(new Client, $usersResource, $aliasResource) extends Directory
+        {
             public $users;
+
             public $users_aliases;
 
             public function __construct($client, $users, $aliases)
@@ -221,10 +232,10 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
-        $repo = new UsersRepository($services, 'example.com', ['root@example.com']);
+        $repo = new UsersRepository($services, 'example.com', ['root@example.com'], allowAdminPromotion: true);
 
         $created = $repo->create(new UserDTO('john@example.com', 'John', 'Doe', 'Password123'));
         $this->assertSame('john@example.com', $created->email);
@@ -249,10 +260,11 @@ class GSuiteTest extends TestCase
 
     public function test_groups_repository_works_with_fake_directory_services()
     {
-        $groupResource = new class {
+        $groupResource = new class
+        {
             public function insert($group)
             {
-                return (object)['email' => $group->email, 'name' => $group->name, 'description' => $group->description];
+                return (object) ['email' => $group->email, 'name' => $group->name, 'description' => $group->description];
             }
 
             public function get($groupKey)
@@ -261,16 +273,18 @@ class GSuiteTest extends TestCase
                     throw new \Exception('not found');
                 }
 
-                return (object)['email' => 'team@example.com', 'name' => 'Team', 'description' => 'Group'];
+                return (object) ['email' => 'team@example.com', 'name' => 'Team', 'description' => 'Group'];
             }
 
             public function listGroups($options)
             {
-                return new class {
+                return new class
+                {
                     public function getGroups()
                     {
-                        return [(object)['email' => 'team@example.com', 'name' => 'Team', 'description' => 'Group']];
+                        return [(object) ['email' => 'team@example.com', 'name' => 'Team', 'description' => 'Group']];
                     }
+
                     public function getNextPageToken()
                     {
                         return null;
@@ -280,7 +294,7 @@ class GSuiteTest extends TestCase
 
             public function update($groupKey, $group)
             {
-                return (object)['email' => $groupKey, 'name' => 'Updated', 'description' => 'Updated description'];
+                return (object) ['email' => $groupKey, 'name' => 'Updated', 'description' => 'Updated description'];
             }
 
             public function delete($groupKey)
@@ -289,7 +303,8 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $membersResource = new class {
+        $membersResource = new class
+        {
             public function insert($groupKey, $member)
             {
                 return null;
@@ -301,8 +316,10 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $directory = new class(new \Google\Client(), $groupResource, $membersResource) extends \Google\Service\Directory {
+        $directory = new class(new Client, $groupResource, $membersResource) extends Directory
+        {
             public $groups;
+
             public $members;
 
             public function __construct($client, $groups, $members)
@@ -313,7 +330,7 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         $repo = new GroupsRepository($services, 'example.com', null, ['rootgroup@example.com']);
@@ -336,5 +353,143 @@ class GSuiteTest extends TestCase
 
         $this->expectException(GoogleWorkspaceException::class);
         $repo->delete('rootgroup@example.com');
+    }
+
+    private function fakeUsersRepository(array &$updates, array $undeletable = ['root@example.com']): UsersRepository
+    {
+        $usersResource = new class($updates)
+        {
+            public function __construct(private array &$updates) {}
+
+            public function get($userKey, $options = [])
+            {
+                // The protected admin is reachable via its ID, its alias and any casing of its email
+                if (in_array(strtolower($userKey), ['root@example.com', '1001', 'admin-alias@example.com'], true)) {
+                    return new User([
+                        'primaryEmail' => 'root@example.com',
+                        'id' => '1001',
+                        'aliases' => ['admin-alias@example.com'],
+                    ]);
+                }
+
+                return new User(['primaryEmail' => $userKey, 'id' => '2002']);
+            }
+
+            public function update($userKey, $user)
+            {
+                $this->updates[] = $user->toSimpleObject();
+
+                return new User(['primaryEmail' => $userKey, 'suspended' => $user->suspended]);
+            }
+
+            public function delete($userKey)
+            {
+                return null;
+            }
+        };
+
+        $directory = new class(new Client, $usersResource) extends Directory
+        {
+            public $users;
+
+            public function __construct($client, $users)
+            {
+                parent::__construct($client);
+                $this->users = $users;
+            }
+        };
+
+        $services = $this->createStub(GoogleServicesFactory::class);
+        $services->method('directory')->willReturn($directory);
+
+        return new UsersRepository($services, 'example.com', $undeletable);
+    }
+
+    public static function protectedUserKeys(): array
+    {
+        return [
+            'different case' => ['ROOT@Example.com'],
+            'user id' => ['1001'],
+            'alias' => ['admin-alias@example.com'],
+        ];
+    }
+
+    #[DataProvider('protectedUserKeys')]
+    public function test_protected_users_cannot_be_deleted_via_alternate_keys(string $key)
+    {
+        $updates = [];
+        $repo = $this->fakeUsersRepository($updates);
+
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionCode(6);
+        $repo->delete($key);
+    }
+
+    public function test_unprotected_users_can_still_be_deleted()
+    {
+        $updates = [];
+        $this->assertTrue($this->fakeUsersRepository($updates)->delete('someone@example.com'));
+    }
+
+    public function test_suspend_and_unsuspend_only_send_the_suspended_flag()
+    {
+        $updates = [];
+        $repo = $this->fakeUsersRepository($updates);
+
+        $this->assertTrue($repo->suspend('john@example.com')->suspended);
+        $this->assertFalse($repo->unsuspend('john@example.com')->suspended);
+
+        $this->assertEquals([(object) ['suspended' => true], (object) ['suspended' => false]], $updates);
+    }
+
+    public function test_update_does_not_blank_omitted_name_parts()
+    {
+        $updates = [];
+        $this->fakeUsersRepository($updates)->update('john@example.com', new UserDTO('john@example.com', 'Johnny', ''));
+
+        $this->assertEquals((object) ['givenName' => 'Johnny'], $updates[0]->name);
+    }
+
+    public function test_protected_groups_cannot_be_deleted_via_alternate_keys()
+    {
+        $groupResource = new class
+        {
+            public function get($groupKey)
+            {
+                return new Group(['email' => 'rootgroup@example.com', 'id' => 'g-1']);
+            }
+
+            public function delete($groupKey)
+            {
+                return null;
+            }
+        };
+
+        $directory = new class(new Client, $groupResource) extends Directory
+        {
+            public $groups;
+
+            public function __construct($client, $groups)
+            {
+                parent::__construct($client);
+                $this->groups = $groups;
+            }
+        };
+
+        $services = $this->createStub(GoogleServicesFactory::class);
+        $services->method('directory')->willReturn($directory);
+
+        $repo = new GroupsRepository($services, 'example.com', null, ['RootGroup@example.com']);
+
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionCode(6);
+        $repo->delete('g-1');
+    }
+
+    public function test_client_requires_an_admin_subject()
+    {
+        $this->expectException(GoogleWorkspaceException::class);
+        $this->expectExceptionMessage('subject');
+        GoogleWorkspaceClient::make(sys_get_temp_dir().'/google-workspace-test-credentials.json', '');
     }
 }

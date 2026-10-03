@@ -2,17 +2,26 @@
 
 namespace BrickServers\GoogleWorkspace\Facades;
 
-use Illuminate\Support\Facades\Facade;
-use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
-use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
+use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
+use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
+use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static UsersRepository users()
- * @method static GroupsRepository groups()
+ * @method static UsersRepositoryContract users()
+ * @method static GroupsRepositoryContract groups()
+ * @method static \BrickServers\GoogleWorkspace\Utilities\BatchOperations batch()
  * @method static GoogleServicesFactory services()
+ * @method static \BrickServers\GoogleWorkspace\GoogleWorkspace asUser(string $email, ?array $scopes = null)
+ * @method static string|null actingAs()
+ * @method static \BrickServers\GoogleWorkspace\Api\DirectoryApi directory()
+ * @method static \BrickServers\GoogleWorkspace\Api\ClassroomApi classroom()
+ * @method static \BrickServers\GoogleWorkspace\Api\CalendarApi calendar()
+ * @method static \BrickServers\GoogleWorkspace\Api\GmailApi gmail()
+ * @method static \BrickServers\GoogleWorkspace\Api\DriveApi drive()
  *
- * @see \BrickServers\GoogleWorkspace\GoogleWorkspace
+ * @see GoogleWorkspace
  */
 class GoogleWorkspaceFacade extends Facade
 {

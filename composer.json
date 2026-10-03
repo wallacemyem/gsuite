@@ -29,17 +29,18 @@
         }
     ],
     "require": {
-        "php": ">=8.2",
+        "php": "^8.2",
         "google/apiclient": "^2.19",
-        "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
-        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "google/apiclient-services": "~0.461",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
         "psr/log": "^1.1|^2.0|^3.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0|^9.0",
-        "phpunit/phpunit": "^10.0|^11.0",
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.5|^12.0|^13.0",
         "laravel/pint": "^1.29",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -55,7 +56,11 @@
         "test": "vendor/bin/phpunit",
         "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
         "lint": "vendor/bin/pint",
-        "analyze": "vendor/bin/phpstan analyse"
+        "analyze": "vendor/bin/phpstan analyse",
+        "generate-api": [
+            "@php scripts/generate-api.php",
+            "vendor/bin/pint src/Api"
+        ]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -71,7 +76,7 @@
                 "BrickServers\\GoogleWorkspace\\GoogleWorkspaceServiceProvider"
             ],
             "aliases": {
-                "GSuite": "BrickServers\\GoogleWorkspace\\Facades\\GSuiteFacade"
+                "GSuite": "BrickServers\\GoogleWorkspace\\Facades\\GoogleWorkspaceFacade"
             }
         }
     }

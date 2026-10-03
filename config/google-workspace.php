@@ -35,24 +35,22 @@ return [
     |--------------------------------------------------------------------------
     | API Scopes
     |--------------------------------------------------------------------------
-    | The OAuth scopes to request for authentication.
-    | Add only the scopes your application needs.
+    | The OAuth scopes to request for authentication. The defaults cover the
+    | users and groups repositories; add others (see the ApiScope enum) only
+    | if your application calls those APIs through services().
     |
     */
     'scopes' => [
         'https://www.googleapis.com/auth/admin.directory.user',
         'https://www.googleapis.com/auth/admin.directory.group',
-        'https://www.googleapis.com/auth/admin.directory.orgunit',
-        'https://www.googleapis.com/auth/admin.directory.device.chromeos',
-        'https://www.googleapis.com/auth/admin.directory.device.mobile',
     ],
 
     /*
     |--------------------------------------------------------------------------
     | Protected Resources
     |--------------------------------------------------------------------------
-    | List of users and groups that cannot be deleted.
-    | This is a safety measure to prevent accidental deletion.
+    | Comma-separated users and groups that cannot be deleted or renamed
+    | (protected users also cannot be suspended). Emails, aliases or IDs.
     |
     */
     'undeletable' => [
@@ -62,9 +60,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Promotion
+    |--------------------------------------------------------------------------
+    | users()->makeAdmin() grants full super admin rights. It is disabled
+    | unless you explicitly opt in here.
+    |
+    */
+    'allow_admin_promotion' => env('GOOGLE_WORKSPACE_ALLOW_ADMIN_PROMOTION', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Retry Configuration
     |--------------------------------------------------------------------------
-    | Configure API request retries for failed requests.
+    | Total attempts (including the first) for requests that fail with a
+    | transient error (5xx, rate limit, network). The delay grows exponentially.
     |
     */
     'retry' => [
@@ -80,19 +89,21 @@ return [
     |
     */
     'timeouts' => [
-        'connect' => 10,
-        'read' => 60,
+        'connect' => env('GOOGLE_WORKSPACE_CONNECT_TIMEOUT', 10),
+        'read' => env('GOOGLE_WORKSPACE_READ_TIMEOUT', 60),
     ],
 
     /*
     |--------------------------------------------------------------------------
     | Logging
     |--------------------------------------------------------------------------
-    | Enable detailed logging for API operations.
+    | Audit log of every change made through the package (creates, updates,
+    | deletes, suspensions, membership and admin changes). Leave channel
+    | empty to use your application's default log channel.
     |
     */
     'logging' => [
-        'enabled' => env('GOOGLE_WORKSPACE_LOGGING', false),
-        'channel' => env('GOOGLE_WORKSPACE_LOG_CHANNEL', 'single'),
+        'enabled' => env('GOOGLE_WORKSPACE_LOGGING', true),
+        'channel' => env('GOOGLE_WORKSPACE_LOG_CHANNEL'),
     ],
 ];
