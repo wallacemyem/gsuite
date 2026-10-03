@@ -232,7 +232,7 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         $repo = new UsersRepository($services, 'example.com', ['root@example.com'], allowAdminPromotion: true);
@@ -330,7 +330,7 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         $repo = new GroupsRepository($services, 'example.com', null, ['rootgroup@example.com']);
@@ -399,7 +399,7 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         return new UsersRepository($services, 'example.com', $undeletable);
@@ -476,7 +476,7 @@ class GSuiteTest extends TestCase
             }
         };
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         $repo = new GroupsRepository($services, 'example.com', null, ['RootGroup@example.com']);

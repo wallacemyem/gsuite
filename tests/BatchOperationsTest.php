@@ -44,7 +44,7 @@ class BatchOperationsTest extends TestCase
         $client->setHttpClient(new HttpClient(['handler' => $stack, 'http_errors' => false]));
         $directory = new Directory($client);
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         return new BatchOperations(

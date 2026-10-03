@@ -30,7 +30,7 @@ class RepositoryBehaviourTest extends TestCase
             $directory->{$name} = $resource;
         }
 
-        $services = $this->createMock(GoogleServicesFactory::class);
+        $services = $this->createStub(GoogleServicesFactory::class);
         $services->method('directory')->willReturn($directory);
 
         return $services;

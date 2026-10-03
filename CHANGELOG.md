@@ -6,6 +6,10 @@ All notable changes to `gsuite` will be documented in this file
 
 See [MIGRATION.md](MIGRATION.md#upgrading-from-3x-to-40) for upgrade notes.
 
+### Changed
+- Requires Laravel 12 or 13; support for end-of-life Laravel 10 and 11 is dropped
+- Tested against Laravel 13 with Testbench 11 and PHPUnit 12; dev tooling moved to PHPStan 2
+
 ### Security
 - Protected (`undeletable`) users and groups can no longer be deleted via a different-case email, an alias or their ID
 - Protected users cannot be suspended; protected users and groups cannot be renamed

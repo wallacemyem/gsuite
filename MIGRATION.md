@@ -4,6 +4,11 @@
 
 4.0 fixes several behaviour bugs and tightens security defaults. Most code keeps working, but review these changes:
 
+### Requirements
+
+- Laravel 12 or 13. Laravel 10 and 11 are end-of-life and no longer supported; stay on 3.x until you upgrade Laravel.
+- PHP 8.2+ (Laravel 13 itself requires PHP 8.3+).
+
 ### `UserDTO` fields are nullable, and `null` means "don't change"
 
 Previously `changePasswordAtNextLogin` defaulted to `true` and `suspended` to `false`, and `update()` silently dropped every `false` value. That meant **every `update()` call forced a password reset**, and nothing could be set back to `false`.

@@ -30,13 +30,13 @@ Support the development of this package:
 - ✅ **Audit Logging** - Every change is logged through PSR-3 / Laravel logging
 - ✅ **Safety Rails** - Protected accounts and groups, opt-in admin promotion
 - ✅ **Retries & Timeouts** - Configurable backoff for transient failures
-- ✅ **Laravel 10-13 Support** - Compatible with all modern Laravel versions
+- ✅ **Laravel 12 & 13** - Supports the current Laravel releases
 - ✅ **Extensible** - Easy to extend with custom services
 
 ## Requirements
 
 - PHP 8.2 or higher
-- Laravel 10.0 or higher
+- Laravel 12 or 13 (Laravel 13 needs PHP 8.3+)
 - Google Workspace account with admin access
 - Google Cloud Project with Admin SDK API enabled
 
