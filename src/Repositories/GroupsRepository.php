@@ -6,6 +6,7 @@ use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\DTOs\GroupDTO;
 use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use BrickServers\GoogleWorkspace\Support\ProtectedResources;
 use Generator;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -14,16 +15,17 @@ class GroupsRepository implements GroupsRepositoryContract
 {
     private LoggerInterface $logger;
 
-    private array $undeletableGroups = [];
+    private ProtectedResources $protection;
 
     public function __construct(
         private readonly GoogleServicesFactory $services,
         private readonly string $domain,
         ?LoggerInterface $logger = null,
         array $undeletableGroups = [],
+        ?ProtectedResources $protection = null,
     ) {
         $this->logger = $logger ?? new NullLogger;
-        $this->undeletableGroups = array_map('strtolower', $undeletableGroups);
+        $this->protection = $protection ?? new ProtectedResources($services, [], $undeletableGroups);
     }
 
     public function create(GroupDTO $group): GroupDTO
@@ -89,12 +91,8 @@ class GroupsRepository implements GroupsRepositoryContract
                 throw GoogleWorkspaceException::invalidArgument('updates', 'No fields to update');
             }
 
-            // Renaming a protected group would let it be deleted under its new address
-            if (isset($payload['email']) && $this->isProtected($groupKey, $current)) {
-                $current ??= $this->services->directory()->groups->get($groupKey);
-                if (strtolower($current->email ?? '') !== strtolower($payload['email'])) {
-                    throw GoogleWorkspaceException::protectedResource('rename', 'Group', $groupKey);
-                }
+            if (isset($payload['email'])) {
+                $this->protection->assertGroupRenameAllowed($groupKey, $payload['email']);
             }
 
             $googleGroup = new \Google_Service_Directory_Group($payload);
@@ -110,9 +108,7 @@ class GroupsRepository implements GroupsRepositoryContract
     public function delete(string $groupKey): bool
     {
         try {
-            if ($this->isProtected($groupKey)) {
-                throw GoogleWorkspaceException::undeletableResource('Group', $groupKey);
-            }
+            $this->protection->assertGroupDeletable($groupKey);
             $this->services->directory()->groups->delete($groupKey);
             $this->logger->info('Group deleted', ['groupKey' => $groupKey]);
 
@@ -145,35 +141,5 @@ class GroupsRepository implements GroupsRepositoryContract
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'remove member', 'Group', $groupKey);
         }
-    }
-
-    /**
-     * The API accepts a group email (any case), an alias or the immutable group ID as
-     * the key, so resolve the group and check every identifier against the protected list.
-     */
-    private function isProtected(string $groupKey, ?object &$group = null): bool
-    {
-        if (! $this->undeletableGroups) {
-            return false;
-        }
-
-        if (in_array(strtolower($groupKey), $this->undeletableGroups, true)) {
-            return true;
-        }
-
-        $group = $this->services->directory()->groups->get($groupKey);
-        $identifiers = array_merge(
-            [$group->email ?? null, $group->id ?? null],
-            (array) ($group->aliases ?? []),
-            (array) ($group->nonEditableAliases ?? []),
-        );
-
-        foreach ($identifiers as $identifier) {
-            if (is_string($identifier) && in_array(strtolower($identifier), $this->undeletableGroups, true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

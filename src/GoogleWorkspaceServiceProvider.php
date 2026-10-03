@@ -8,6 +8,7 @@ use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use BrickServers\GoogleWorkspace\Support\ProtectedResources;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
@@ -49,14 +50,23 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
             );
         });
 
+        // Safety rules shared by the repositories and the API wrappers
+        $this->app->singleton(ProtectedResources::class, function () {
+            return new ProtectedResources(
+                services: app(GoogleServicesFactory::class),
+                users: $this->protectedList('users'),
+                groups: $this->protectedList('groups'),
+                allowAdminPromotion: filter_var(config('google-workspace.allow_admin_promotion', false), FILTER_VALIDATE_BOOL),
+            );
+        });
+
         // Register Users Repository
         $this->app->singleton(UsersRepository::class, function () {
             return new UsersRepository(
                 services: app(GoogleServicesFactory::class),
                 domain: (string) config('google-workspace.domain'),
-                undeletableUsers: $this->protectedList('users'),
                 logger: $this->logger(),
-                allowAdminPromotion: filter_var(config('google-workspace.allow_admin_promotion', false), FILTER_VALIDATE_BOOL),
+                protection: app(ProtectedResources::class),
             );
         });
         $this->app->alias(UsersRepository::class, UsersRepositoryContract::class);
@@ -67,7 +77,7 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
                 services: app(GoogleServicesFactory::class),
                 domain: (string) config('google-workspace.domain'),
                 logger: $this->logger(),
-                undeletableGroups: $this->protectedList('groups'),
+                protection: app(ProtectedResources::class),
             );
         });
         $this->app->alias(GroupsRepository::class, GroupsRepositoryContract::class);
@@ -87,6 +97,8 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
                 services: app(GoogleServicesFactory::class),
                 users: app(UsersRepositoryContract::class),
                 groups: app(GroupsRepositoryContract::class),
+                logger: $this->logger(),
+                protection: app(ProtectedResources::class),
             );
         });
 
@@ -127,6 +139,7 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
             GroupsRepository::class,
             GroupsRepositoryContract::class,
             BatchOperations::class,
+            ProtectedResources::class,
             'google-workspace',
             GoogleWorkspace::class,
             'gsuite',

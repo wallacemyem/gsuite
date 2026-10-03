@@ -21,6 +21,9 @@ class GoogleServicesFactory
 {
     private array $services = [];
 
+    /** @var array<string, self> */
+    private array $impersonated = [];
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -121,5 +124,25 @@ class GoogleServicesFactory
     public function refresh(): void
     {
         $this->services = [];
+        $this->impersonated = [];
+    }
+
+    /**
+     * A factory whose services act as the given user (domain-wide delegation).
+     * Factories are cached per user and scope set.
+     */
+    public function forSubject(string $subject, ?array $scopes = null): self
+    {
+        $key = strtolower($subject).'|'.implode(' ', $scopes ?? []);
+
+        return $this->impersonated[$key] ??= new self(
+            $this->client->withSubject($subject, $scopes),
+            $this->logger,
+        );
+    }
+
+    public function client(): GoogleWorkspaceClient
+    {
+        return $this->client;
     }
 }

@@ -2,6 +2,11 @@
 
 namespace BrickServers\GoogleWorkspace\Tests;
 
+use BrickServers\GoogleWorkspace\Api\CalendarApi;
+use BrickServers\GoogleWorkspace\Api\ClassroomApi;
+use BrickServers\GoogleWorkspace\Api\DirectoryApi;
+use BrickServers\GoogleWorkspace\Api\DriveApi;
+use BrickServers\GoogleWorkspace\Api\GmailApi;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
@@ -9,6 +14,7 @@ use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
+use Google\Service\Gmail;
 use Orchestra\Testbench\TestCase;
 
 class ConfigurationTest extends TestCase
@@ -61,6 +67,19 @@ class ConfigurationTest extends TestCase
         $this->assertInstanceOf(GroupsRepositoryContract::class, app('google-workspace')->groups());
         $this->assertInstanceOf(BatchOperations::class, app('google-workspace')->batch());
         $this->assertSame(app('google-workspace'), app(GoogleWorkspace::class));
+    }
+
+    public function test_every_api_is_reachable_from_the_workspace()
+    {
+        $workspace = app('google-workspace');
+
+        $this->assertInstanceOf(DirectoryApi::class, $workspace->directory());
+        $this->assertInstanceOf(ClassroomApi::class, $workspace->classroom());
+        $this->assertInstanceOf(CalendarApi::class, $workspace->calendar());
+        $this->assertInstanceOf(GmailApi::class, $workspace->gmail());
+        $this->assertInstanceOf(DriveApi::class, $workspace->drive());
+        $this->assertInstanceOf(Gmail::class, $workspace->gmail()->google());
+        $this->assertSame('jane@example.com', $workspace->asUser('jane@example.com')->drive()->google()->getClient()->getConfig('subject'));
     }
 
     public function test_facade_alias_declared_in_composer_json_exists()

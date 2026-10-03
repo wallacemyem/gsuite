@@ -99,6 +99,27 @@ class GoogleWorkspaceClient
         ]));
     }
 
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
+
+    /**
+     * A client with the same credentials and settings that impersonates another
+     * account (domain-wide delegation). Pass scopes to override the configured ones.
+     */
+    public function withSubject(string $subject, ?array $scopes = null): self
+    {
+        return new self(
+            $this->credentialsPath,
+            $subject,
+            $scopes ?? $this->scopes,
+            $this->logger,
+            $this->retry,
+            $this->timeouts,
+        );
+    }
+
     public function getClient(): Client
     {
         return $this->client;

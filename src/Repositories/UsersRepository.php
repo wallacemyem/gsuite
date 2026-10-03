@@ -8,6 +8,7 @@ use BrickServers\GoogleWorkspace\Enums\UserProjection;
 use BrickServers\GoogleWorkspace\Enums\UserViewType;
 use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use BrickServers\GoogleWorkspace\Support\ProtectedResources;
 use Generator;
 use Google\Service\Directory\Alias;
 use Google\Service\Directory\UserMakeAdmin;
@@ -16,7 +17,7 @@ use Psr\Log\NullLogger;
 
 class UsersRepository implements UsersRepositoryContract
 {
-    private array $undeletableUsers = [];
+    private ProtectedResources $protection;
 
     private LoggerInterface $logger;
 
@@ -25,9 +26,10 @@ class UsersRepository implements UsersRepositoryContract
         private readonly string $domain,
         array $undeletableUsers = [],
         ?LoggerInterface $logger = null,
-        private readonly bool $allowAdminPromotion = false,
+        bool $allowAdminPromotion = false,
+        ?ProtectedResources $protection = null,
     ) {
-        $this->undeletableUsers = array_map('strtolower', $undeletableUsers);
+        $this->protection = $protection ?? new ProtectedResources($services, $undeletableUsers, [], $allowAdminPromotion);
         $this->logger = $logger ?? new NullLogger;
     }
 
@@ -112,12 +114,11 @@ class UsersRepository implements UsersRepositoryContract
                 throw GoogleWorkspaceException::invalidArgument('updates', 'No fields to update');
             }
 
-            // Renaming a protected user would let it be deleted under its new address
-            if (isset($payload['primaryEmail']) && $this->isProtected($userKey, $current)) {
-                $current ??= $this->services->directory()->users->get($userKey, []);
-                if (strtolower($current->primaryEmail ?? '') !== strtolower($payload['primaryEmail'])) {
-                    throw GoogleWorkspaceException::protectedResource('rename', 'User', $userKey);
-                }
+            if (($payload['suspended'] ?? null) === true) {
+                $this->protection->assertUserSuspendable($userKey);
+            }
+            if (isset($payload['primaryEmail'])) {
+                $this->protection->assertUserRenameAllowed($userKey, $payload['primaryEmail']);
             }
 
             return $this->patch($userKey, $payload, 'User updated');
@@ -129,9 +130,7 @@ class UsersRepository implements UsersRepositoryContract
     public function delete(string $userKey): bool
     {
         try {
-            if ($this->isProtected($userKey)) {
-                throw GoogleWorkspaceException::undeletableResource('User', $userKey);
-            }
+            $this->protection->assertUserDeletable($userKey);
             $this->services->directory()->users->delete($userKey);
             $this->logger->info('User deleted', ['userKey' => $userKey]);
 
@@ -144,9 +143,7 @@ class UsersRepository implements UsersRepositoryContract
     public function suspend(string $userKey): UserDTO
     {
         try {
-            if ($this->isProtected($userKey)) {
-                throw GoogleWorkspaceException::protectedResource('suspend', 'User', $userKey);
-            }
+            $this->protection->assertUserSuspendable($userKey);
 
             return $this->patch($userKey, ['suspended' => true], 'User suspended');
         } catch (\Exception $e) {
@@ -190,11 +187,7 @@ class UsersRepository implements UsersRepositoryContract
 
     public function makeAdmin(string $userKey): bool
     {
-        if (! $this->allowAdminPromotion) {
-            throw GoogleWorkspaceException::accessDenied(
-                'Admin promotion is disabled. Set google-workspace.allow_admin_promotion to true to enable it.'
-            );
-        }
+        $this->protection->assertAdminPromotionAllowed();
 
         try {
             $makeAdminRequest = new UserMakeAdmin;
@@ -215,36 +208,6 @@ class UsersRepository implements UsersRepositoryContract
         $this->logger->info($logMessage, ['userKey' => $userKey, 'fields' => array_keys($fields)]);
 
         return UserDTO::fromArray((array) $response);
-    }
-
-    /**
-     * The API accepts a primary email (any case), an alias or the immutable user ID as
-     * the key, so resolve the user and check every identifier against the protected list.
-     */
-    private function isProtected(string $userKey, ?object &$user = null): bool
-    {
-        if (! $this->undeletableUsers) {
-            return false;
-        }
-
-        if (in_array(strtolower($userKey), $this->undeletableUsers, true)) {
-            return true;
-        }
-
-        $user = $this->services->directory()->users->get($userKey, []);
-        $identifiers = array_merge(
-            [$user->primaryEmail ?? null, $user->id ?? null],
-            (array) ($user->aliases ?? []),
-            (array) ($user->nonEditableAliases ?? []),
-        );
-
-        foreach ($identifiers as $identifier) {
-            if (is_string($identifier) && in_array(strtolower($identifier), $this->undeletableUsers, true)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public function validate(UserDTO $user): void
