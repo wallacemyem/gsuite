@@ -3,9 +3,9 @@
 namespace BrickServers\GoogleWorkspace\Repositories;
 
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
-use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\DTOs\GroupDTO;
 use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
+use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use Generator;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -13,6 +13,7 @@ use Psr\Log\NullLogger;
 class GroupsRepository implements GroupsRepositoryContract
 {
     private LoggerInterface $logger;
+
     private array $undeletableGroups = [];
 
     public function __construct(
@@ -21,7 +22,7 @@ class GroupsRepository implements GroupsRepositoryContract
         ?LoggerInterface $logger = null,
         array $undeletableGroups = [],
     ) {
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?? new NullLogger;
         $this->undeletableGroups = array_map('strtolower', $undeletableGroups);
     }
 
@@ -31,7 +32,8 @@ class GroupsRepository implements GroupsRepositoryContract
             $googleGroup = new \Google_Service_Directory_Group($group->toArray());
             $response = $this->services->directory()->groups->insert($googleGroup);
             $this->logger->info('Group created', ['email' => $group->email]);
-            return GroupDTO::fromArray((array)$response);
+
+            return GroupDTO::fromArray((array) $response);
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'create group', 'Group', $group->email);
         }
@@ -41,7 +43,8 @@ class GroupsRepository implements GroupsRepositoryContract
     {
         try {
             $response = $this->services->directory()->groups->get($groupKey);
-            return GroupDTO::fromArray((array)$response);
+
+            return GroupDTO::fromArray((array) $response);
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'get group', 'Group', $groupKey);
         }
@@ -58,7 +61,7 @@ class GroupsRepository implements GroupsRepositoryContract
             $response = $this->services->directory()->groups->listGroups($options);
             $groups = [];
             foreach ($response->getGroups() ?? [] as $group) {
-                $groups[] = GroupDTO::fromArray((array)$group);
+                $groups[] = GroupDTO::fromArray((array) $group);
             }
 
             return ['groups' => $groups, 'nextPageToken' => $response->getNextPageToken() ?? null];
@@ -82,7 +85,7 @@ class GroupsRepository implements GroupsRepositoryContract
     {
         try {
             $payload = $updates->toArray();
-            if (!$payload) {
+            if (! $payload) {
                 throw GoogleWorkspaceException::invalidArgument('updates', 'No fields to update');
             }
 
@@ -97,7 +100,8 @@ class GroupsRepository implements GroupsRepositoryContract
             $googleGroup = new \Google_Service_Directory_Group($payload);
             $response = $this->services->directory()->groups->update($groupKey, $googleGroup);
             $this->logger->info('Group updated', ['groupKey' => $groupKey, 'fields' => array_keys($payload)]);
-            return GroupDTO::fromArray((array)$response);
+
+            return GroupDTO::fromArray((array) $response);
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'update group', 'Group', $groupKey);
         }
@@ -111,6 +115,7 @@ class GroupsRepository implements GroupsRepositoryContract
             }
             $this->services->directory()->groups->delete($groupKey);
             $this->logger->info('Group deleted', ['groupKey' => $groupKey]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'delete group', 'Group', $groupKey);
@@ -123,6 +128,7 @@ class GroupsRepository implements GroupsRepositoryContract
             $member = new \Google_Service_Directory_Member(['email' => $userEmail]);
             $this->services->directory()->members->insert($groupKey, $member);
             $this->logger->info('Member added to group', ['groupKey' => $groupKey, 'email' => $userEmail]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'add member', 'Group', $groupKey);
@@ -134,6 +140,7 @@ class GroupsRepository implements GroupsRepositoryContract
         try {
             $this->services->directory()->members->delete($groupKey, $userEmail);
             $this->logger->info('Member removed from group', ['groupKey' => $groupKey, 'email' => $userEmail]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'remove member', 'Group', $groupKey);
@@ -146,7 +153,7 @@ class GroupsRepository implements GroupsRepositoryContract
      */
     private function isProtected(string $groupKey, ?object &$group = null): bool
     {
-        if (!$this->undeletableGroups) {
+        if (! $this->undeletableGroups) {
             return false;
         }
 
@@ -157,8 +164,8 @@ class GroupsRepository implements GroupsRepositoryContract
         $group = $this->services->directory()->groups->get($groupKey);
         $identifiers = array_merge(
             [$group->email ?? null, $group->id ?? null],
-            (array)($group->aliases ?? []),
-            (array)($group->nonEditableAliases ?? []),
+            (array) ($group->aliases ?? []),
+            (array) ($group->nonEditableAliases ?? []),
         );
 
         foreach ($identifiers as $identifier) {

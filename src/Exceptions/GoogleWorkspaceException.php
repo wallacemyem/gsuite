@@ -3,6 +3,7 @@
 namespace BrickServers\GoogleWorkspace\Exceptions;
 
 use Exception;
+use GuzzleHttp\Exception\ConnectException;
 use Throwable;
 
 class GoogleWorkspaceException extends Exception
@@ -89,7 +90,7 @@ class GoogleWorkspaceException extends Exception
             };
         }
 
-        if ($e instanceof \GuzzleHttp\Exception\ConnectException) {
+        if ($e instanceof ConnectException) {
             return self::connectionError($message, $e);
         }
 

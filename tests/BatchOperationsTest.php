@@ -7,6 +7,7 @@ use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
+use Google\Client;
 use Google\Service\Directory;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Handler\MockHandler;
@@ -20,18 +21,18 @@ class BatchOperationsTest extends TestCase
     private array $history = [];
 
     /**
-     * @param array<string, array{0: int, 1: array}> $parts Content-ID => [status, JSON body]
+     * @param  array<string, array{0: int, 1: array}>  $parts  Content-ID => [status, JSON body]
      */
     private function batchResponse(array $parts): Response
     {
         $body = '';
         foreach ($parts as $contentId => [$status, $json]) {
             $body .= "--batch_test\r\nContent-Type: application/http\r\nContent-ID: {$contentId}\r\n\r\n"
-                . "HTTP/1.1 {$status} X\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"
-                . json_encode($json) . "\r\n";
+                ."HTTP/1.1 {$status} X\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"
+                .json_encode($json)."\r\n";
         }
 
-        return new Response(200, ['Content-Type' => 'multipart/mixed; boundary=batch_test'], $body . '--batch_test--');
+        return new Response(200, ['Content-Type' => 'multipart/mixed; boundary=batch_test'], $body.'--batch_test--');
     }
 
     private function operations(Response ...$responses): BatchOperations
@@ -39,7 +40,7 @@ class BatchOperationsTest extends TestCase
         $stack = HandlerStack::create(new MockHandler($responses));
         $stack->push(Middleware::history($this->history));
 
-        $client = new \Google\Client();
+        $client = new Client;
         $client->setHttpClient(new HttpClient(['handler' => $stack, 'http_errors' => false]));
         $directory = new Directory($client);
 
@@ -62,8 +63,8 @@ class BatchOperationsTest extends TestCase
         ]))->addGroupMembers('team@example.com', ['a@example.com', 'b@example.com', 'c@example.com']);
 
         $this->assertCount(1, $this->history, 'All members should be sent in one HTTP request');
-        $this->assertStringEndsWith('/batch', (string)$this->history[0]['request']->getUri());
-        $this->assertSame(3, substr_count((string)$this->history[0]['request']->getBody(), '/groups/team%40example.com/members'));
+        $this->assertStringEndsWith('/batch', (string) $this->history[0]['request']->getUri());
+        $this->assertSame(3, substr_count((string) $this->history[0]['request']->getBody(), '/groups/team%40example.com/members'));
 
         $this->assertSame(['a@example.com', 'c@example.com'], $results['success']);
         $this->assertSame('b@example.com', $results['failed'][0]['email']);

@@ -2,10 +2,11 @@
 
 namespace BrickServers\GoogleWorkspace\Facades;
 
-use Illuminate\Support\Facades\Facade;
-use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
+use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
+use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use Illuminate\Support\Facades\Facade;
 
 /**
  * @method static UsersRepositoryContract users()
@@ -13,7 +14,7 @@ use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
  * @method static \BrickServers\GoogleWorkspace\Utilities\BatchOperations batch()
  * @method static GoogleServicesFactory services()
  *
- * @see \BrickServers\GoogleWorkspace\GoogleWorkspace
+ * @see GoogleWorkspace
  */
 class GoogleWorkspaceFacade extends Facade
 {

@@ -3,18 +3,21 @@
 namespace BrickServers\GoogleWorkspace\Repositories;
 
 use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
-use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\DTOs\UserDTO;
-use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use BrickServers\GoogleWorkspace\Enums\UserProjection;
 use BrickServers\GoogleWorkspace\Enums\UserViewType;
+use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
+use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use Generator;
+use Google\Service\Directory\Alias;
+use Google\Service\Directory\UserMakeAdmin;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 class UsersRepository implements UsersRepositoryContract
 {
     private array $undeletableUsers = [];
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -25,7 +28,7 @@ class UsersRepository implements UsersRepositoryContract
         private readonly bool $allowAdminPromotion = false,
     ) {
         $this->undeletableUsers = array_map('strtolower', $undeletableUsers);
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?? new NullLogger;
     }
 
     public function create(UserDTO $user): UserDTO
@@ -39,7 +42,8 @@ class UsersRepository implements UsersRepositoryContract
             $googleUser = new \Google_Service_Directory_User($payload);
             $response = $this->services->directory()->users->insert($googleUser);
             $this->logger->info('User created', ['email' => $user->email]);
-            return UserDTO::fromArray((array)$response);
+
+            return UserDTO::fromArray((array) $response);
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'create user', 'User', $user->email);
         }
@@ -55,7 +59,8 @@ class UsersRepository implements UsersRepositoryContract
                 'projection' => $projection->value,
                 'viewType' => $viewType->value,
             ]);
-            return UserDTO::fromArray((array)$response);
+
+            return UserDTO::fromArray((array) $response);
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'get user', 'User', $userKey);
         }
@@ -76,8 +81,9 @@ class UsersRepository implements UsersRepositoryContract
             $response = $this->services->directory()->users->listUsers($options);
             $users = [];
             foreach ($response->getUsers() ?? [] as $user) {
-                $users[] = UserDTO::fromArray((array)$user);
+                $users[] = UserDTO::fromArray((array) $user);
             }
+
             return [
                 'users' => $users,
                 'nextPageToken' => $response->getNextPageToken() ?? null,
@@ -102,7 +108,7 @@ class UsersRepository implements UsersRepositoryContract
     {
         try {
             $payload = $updates->toArray();
-            if (!$payload) {
+            if (! $payload) {
                 throw GoogleWorkspaceException::invalidArgument('updates', 'No fields to update');
             }
 
@@ -128,6 +134,7 @@ class UsersRepository implements UsersRepositoryContract
             }
             $this->services->directory()->users->delete($userKey);
             $this->logger->info('User deleted', ['userKey' => $userKey]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'delete user', 'User', $userKey);
@@ -140,6 +147,7 @@ class UsersRepository implements UsersRepositoryContract
             if ($this->isProtected($userKey)) {
                 throw GoogleWorkspaceException::protectedResource('suspend', 'User', $userKey);
             }
+
             return $this->patch($userKey, ['suspended' => true], 'User suspended');
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'suspend user', 'User', $userKey);
@@ -158,9 +166,10 @@ class UsersRepository implements UsersRepositoryContract
     public function addAlias(string $userKey, string $alias): bool
     {
         try {
-            $userAlias = new \Google\Service\Directory\Alias(['alias' => $alias]);
+            $userAlias = new Alias(['alias' => $alias]);
             $this->services->directory()->users_aliases->insert($userKey, $userAlias);
             $this->logger->info('User alias added', ['userKey' => $userKey, 'alias' => $alias]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'add alias', 'User', $userKey);
@@ -172,6 +181,7 @@ class UsersRepository implements UsersRepositoryContract
         try {
             $this->services->directory()->users_aliases->delete($userKey, $alias);
             $this->logger->info('User alias removed', ['userKey' => $userKey, 'alias' => $alias]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'remove alias', 'User', $userKey);
@@ -180,17 +190,18 @@ class UsersRepository implements UsersRepositoryContract
 
     public function makeAdmin(string $userKey): bool
     {
-        if (!$this->allowAdminPromotion) {
+        if (! $this->allowAdminPromotion) {
             throw GoogleWorkspaceException::accessDenied(
                 'Admin promotion is disabled. Set google-workspace.allow_admin_promotion to true to enable it.'
             );
         }
 
         try {
-            $makeAdminRequest = new \Google\Service\Directory\UserMakeAdmin();
+            $makeAdminRequest = new UserMakeAdmin;
             $makeAdminRequest->setStatus(true);
             $this->services->directory()->users->makeAdmin($userKey, $makeAdminRequest);
             $this->logger->warning('User promoted to super admin', ['userKey' => $userKey]);
+
             return true;
         } catch (\Exception $e) {
             throw GoogleWorkspaceException::fromGoogle($e, 'promote user', 'User', $userKey);
@@ -202,7 +213,8 @@ class UsersRepository implements UsersRepositoryContract
         $googleUser = new \Google_Service_Directory_User($fields);
         $response = $this->services->directory()->users->update($userKey, $googleUser);
         $this->logger->info($logMessage, ['userKey' => $userKey, 'fields' => array_keys($fields)]);
-        return UserDTO::fromArray((array)$response);
+
+        return UserDTO::fromArray((array) $response);
     }
 
     /**
@@ -211,7 +223,7 @@ class UsersRepository implements UsersRepositoryContract
      */
     private function isProtected(string $userKey, ?object &$user = null): bool
     {
-        if (!$this->undeletableUsers) {
+        if (! $this->undeletableUsers) {
             return false;
         }
 
@@ -222,8 +234,8 @@ class UsersRepository implements UsersRepositoryContract
         $user = $this->services->directory()->users->get($userKey, []);
         $identifiers = array_merge(
             [$user->primaryEmail ?? null, $user->id ?? null],
-            (array)($user->aliases ?? []),
-            (array)($user->nonEditableAliases ?? []),
+            (array) ($user->aliases ?? []),
+            (array) ($user->nonEditableAliases ?? []),
         );
 
         foreach ($identifiers as $identifier) {
@@ -240,24 +252,26 @@ class UsersRepository implements UsersRepositoryContract
         $this->validateEmail($user->email);
         $this->validatePassword($user->password);
 
-        if (!$user->givenName || !$user->familyName) {
+        if (! $user->givenName || ! $user->familyName) {
             throw GoogleWorkspaceException::validationError('name', 'Given name and family name are required');
         }
     }
 
     private function validateEmail(string $email): void
     {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw GoogleWorkspaceException::validationError('email', 'Invalid email format');
         }
-        if (!str_ends_with(strtolower($email), '@' . strtolower($this->domain))) {
+        if (! str_ends_with(strtolower($email), '@'.strtolower($this->domain))) {
             throw GoogleWorkspaceException::validationError('email', "Email must be in domain @{$this->domain}");
         }
     }
 
     private function validatePassword(?string $password): void
     {
-        if (!$password) return;
+        if (! $password) {
+            return;
+        }
         if (strlen($password) < 8 || strlen($password) > 100) {
             throw GoogleWorkspaceException::validationError('password', 'Password must be 8-100 characters');
         }

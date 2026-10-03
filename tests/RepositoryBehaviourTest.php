@@ -8,8 +8,12 @@ use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
+use Google\Client;
 use Google\Service\Directory;
 use Google\Service\Directory\User;
+use Google\Service\Exception;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -21,7 +25,7 @@ class RepositoryBehaviourTest extends TestCase
 
     private function services(array $resources): GoogleServicesFactory
     {
-        $directory = new Directory(new \Google\Client());
+        $directory = new Directory(new Client);
         foreach ($resources as $name => $resource) {
             $directory->{$name} = $resource;
         }
@@ -38,7 +42,8 @@ class RepositoryBehaviourTest extends TestCase
      */
     private function usersResource(array $missing = [], ?\Throwable $failWith = null): object
     {
-        return new class($this->calls, $missing, $failWith) {
+        return new class($this->calls, $missing, $failWith)
+        {
             public function __construct(private array &$calls, private array $missing, private ?\Throwable $failWith) {}
 
             public function get($userKey, $options = [])
@@ -48,7 +53,7 @@ class RepositoryBehaviourTest extends TestCase
                     throw $this->failWith;
                 }
                 if (in_array($userKey, $this->missing, true)) {
-                    throw new \Google\Service\Exception('Resource Not Found: userKey', 404);
+                    throw new Exception('Resource Not Found: userKey', 404);
                 }
                 if (in_array(strtolower($userKey), ['root@example.com', '1001', 'admin-alias@example.com'], true)) {
                     return new User(['primaryEmail' => 'root@example.com', 'id' => '1001', 'aliases' => ['admin-alias@example.com']]);
@@ -60,12 +65,14 @@ class RepositoryBehaviourTest extends TestCase
             public function insert($user)
             {
                 $this->calls[] = ['insert', null, $user->toSimpleObject()];
+
                 return $user;
             }
 
             public function update($userKey, $user)
             {
                 $this->calls[] = ['update', $userKey, $user->toSimpleObject()];
+
                 return new User(['primaryEmail' => $user->primaryEmail ?? $userKey, 'suspended' => $user->suspended]);
             }
 
@@ -109,7 +116,7 @@ class RepositoryBehaviourTest extends TestCase
         $this->usersRepo($this->usersResource())->update('john@example.com', new UserDTO('john@example.com', givenName: 'Johnny'));
 
         $payload = $this->callsOf('update')[0][2];
-        $this->assertEquals((object)['primaryEmail' => 'john@example.com', 'name' => (object)['givenName' => 'Johnny']], $payload);
+        $this->assertEquals((object) ['primaryEmail' => 'john@example.com', 'name' => (object) ['givenName' => 'Johnny']], $payload);
         $this->assertObjectNotHasProperty('changePasswordAtNextLogin', $payload, 'Updating a name must not force a password reset');
         $this->assertObjectNotHasProperty('suspended', $payload);
     }
@@ -118,7 +125,7 @@ class RepositoryBehaviourTest extends TestCase
     {
         $this->usersRepo($this->usersResource())->update('john@example.com', new UserDTO('', changePasswordAtNextLogin: false, suspended: false));
 
-        $this->assertEquals((object)['changePasswordAtNextLogin' => false, 'suspended' => false], $this->callsOf('update')[0][2]);
+        $this->assertEquals((object) ['changePasswordAtNextLogin' => false, 'suspended' => false], $this->callsOf('update')[0][2]);
     }
 
     public function test_update_with_no_fields_is_rejected()
@@ -155,13 +162,13 @@ class RepositoryBehaviourTest extends TestCase
     public static function googleErrors(): array
     {
         return [
-            'not found' => [new \Google\Service\Exception('nope', 404), 5],
-            'forbidden' => [new \Google\Service\Exception('Not Authorized', 403), 403],
-            'unauthenticated' => [new \Google\Service\Exception('Login Required', 401), 403],
-            'rate limited (429)' => [new \Google\Service\Exception('slow down', 429), 429],
-            'rate limited (403 reason)' => [new \Google\Service\Exception('slow down', 403, null, [['reason' => 'userRateLimitExceeded']]), 429],
-            'server error' => [new \Google\Service\Exception('oops', 500), 3],
-            'network' => [new \GuzzleHttp\Exception\ConnectException('timed out', new \GuzzleHttp\Psr7\Request('GET', '/')), 7],
+            'not found' => [new Exception('nope', 404), 5],
+            'forbidden' => [new Exception('Not Authorized', 403), 403],
+            'unauthenticated' => [new Exception('Login Required', 401), 403],
+            'rate limited (429)' => [new Exception('slow down', 429), 429],
+            'rate limited (403 reason)' => [new Exception('slow down', 403, null, [['reason' => 'userRateLimitExceeded']]), 429],
+            'server error' => [new Exception('oops', 500), 3],
+            'network' => [new ConnectException('timed out', new Request('GET', '/')), 7],
         ];
     }
 
@@ -224,7 +231,8 @@ class RepositoryBehaviourTest extends TestCase
 
     public function test_protected_groups_cannot_be_renamed()
     {
-        $groups = new class {
+        $groups = new class
+        {
             public function get($groupKey)
             {
                 return new Directory\Group(['email' => 'rootgroup@example.com', 'id' => 'g-1']);
@@ -244,12 +252,13 @@ class RepositoryBehaviourTest extends TestCase
 
     public function test_changes_are_audit_logged()
     {
-        $logger = new class extends AbstractLogger {
+        $logger = new class extends AbstractLogger
+        {
             public array $records = [];
 
             public function log($level, $message, array $context = []): void
             {
-                $this->records[] = [$level, (string)$message];
+                $this->records[] = [$level, (string) $message];
             }
         };
 

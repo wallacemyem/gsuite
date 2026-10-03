@@ -2,14 +2,14 @@
 
 namespace BrickServers\GoogleWorkspace;
 
-use Illuminate\Support\ServiceProvider;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
-use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
-use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Repositories\GroupsRepository;
+use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
+use BrickServers\GoogleWorkspace\Services\GoogleServicesFactory;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
+use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -21,13 +21,13 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/google-workspace.php' => config_path('google-workspace.php'),
+            __DIR__.'/../config/google-workspace.php' => config_path('google-workspace.php'),
         ], 'config');
     }
 
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/google-workspace.php', 'google-workspace');
+        $this->mergeConfigFrom(__DIR__.'/../config/google-workspace.php', 'google-workspace');
 
         // Register Google Client
         $this->app->singleton(GoogleWorkspaceClient::class, function () {
@@ -98,8 +98,8 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
 
     private function logger(): LoggerInterface
     {
-        if (!filter_var(config('google-workspace.logging.enabled', true), FILTER_VALIDATE_BOOL)) {
-            return new NullLogger();
+        if (! filter_var(config('google-workspace.logging.enabled', true), FILTER_VALIDATE_BOOL)) {
+            return new NullLogger;
         }
 
         $channel = config('google-workspace.logging.channel');

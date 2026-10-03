@@ -5,6 +5,7 @@ namespace BrickServers\GoogleWorkspace\Contracts;
 use BrickServers\GoogleWorkspace\DTOs\UserDTO;
 use BrickServers\GoogleWorkspace\Enums\UserProjection;
 use BrickServers\GoogleWorkspace\Enums\UserViewType;
+use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use Generator;
 
 interface UsersRepositoryContract
@@ -14,7 +15,7 @@ interface UsersRepositoryContract
     /**
      * Check a user is valid for creation (email in domain, names, password length).
      *
-     * @throws \BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException
+     * @throws GoogleWorkspaceException
      */
     public function validate(UserDTO $user): void;
 

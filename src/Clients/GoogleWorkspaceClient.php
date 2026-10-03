@@ -2,10 +2,10 @@
 
 namespace BrickServers\GoogleWorkspace\Clients;
 
+use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use Google\Client;
 use Google\Task\Runner;
 use GuzzleHttp\Client as HttpClient;
-use BrickServers\GoogleWorkspace\Exceptions\GoogleWorkspaceException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -15,6 +15,7 @@ use Psr\Log\NullLogger;
 class GoogleWorkspaceClient
 {
     private Client $client;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -25,14 +26,14 @@ class GoogleWorkspaceClient
         private readonly array $retry = [],
         private readonly array $timeouts = [],
     ) {
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?? new NullLogger;
         $this->initialize();
     }
 
     private function initialize(): void
     {
         try {
-            if (!file_exists($this->credentialsPath)) {
+            if (! file_exists($this->credentialsPath)) {
                 throw GoogleWorkspaceException::missingCredentials();
             }
 
@@ -42,7 +43,7 @@ class GoogleWorkspaceClient
                 );
             }
 
-            $this->client = new Client();
+            $this->client = new Client;
             $this->client->setAuthConfig($this->credentialsPath);
             $this->client->setScopes($this->scopes);
             $this->client->setSubject($this->subject);
@@ -55,7 +56,7 @@ class GoogleWorkspaceClient
                 throw $e;
             }
             throw GoogleWorkspaceException::invalidConfiguration(
-                'Failed to initialize client: ' . $e->getMessage()
+                'Failed to initialize client: '.$e->getMessage()
             );
         }
     }
@@ -65,11 +66,11 @@ class GoogleWorkspaceClient
      */
     private function configureRetries(): void
     {
-        $maxAttempts = max(1, (int)($this->retry['max_attempts'] ?? 1));
+        $maxAttempts = max(1, (int) ($this->retry['max_attempts'] ?? 1));
 
         $this->client->setConfig('retry', [
             'retries' => $maxAttempts - 1,
-            'initial_delay' => max(0, (int)($this->retry['delay_ms'] ?? 100)) / 1000,
+            'initial_delay' => max(0, (int) ($this->retry['delay_ms'] ?? 100)) / 1000,
         ]);
         $this->client->setConfig('retry_map', [
             '429' => Runner::TASK_RETRY_ALWAYS,
@@ -93,8 +94,8 @@ class GoogleWorkspaceClient
         $this->client->setHttpClient(new HttpClient([
             'base_uri' => $this->client->getConfig('base_path'),
             'http_errors' => false,
-            'connect_timeout' => (float)($this->timeouts['connect'] ?? 10),
-            'timeout' => (float)($this->timeouts['read'] ?? 60),
+            'connect_timeout' => (float) ($this->timeouts['connect'] ?? 10),
+            'timeout' => (float) ($this->timeouts['read'] ?? 60),
         ]));
     }
 

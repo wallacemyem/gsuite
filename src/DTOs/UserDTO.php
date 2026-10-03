@@ -22,7 +22,7 @@ readonly class UserDTO
 
     public static function fromArray(array $data): self
     {
-        $name = (array)($data['name'] ?? []);
+        $name = (array) ($data['name'] ?? []);
 
         return new self(
             email: $data['primaryEmail'] ?? '',
@@ -31,9 +31,9 @@ readonly class UserDTO
             password: null,
             changePasswordAtNextLogin: $data['changePasswordAtNextLogin'] ?? null,
             suspended: $data['suspended'] ?? null,
-            phone: ((array)($data['phones'][0] ?? []))['value'] ?? null,
-            title: ((array)($data['organizations'][0] ?? []))['title'] ?? null,
-            customSchemas: isset($data['customSchemas']) ? (array)$data['customSchemas'] : null,
+            phone: ((array) ($data['phones'][0] ?? []))['value'] ?? null,
+            title: ((array) ($data['organizations'][0] ?? []))['title'] ?? null,
+            customSchemas: isset($data['customSchemas']) ? (array) $data['customSchemas'] : null,
         );
     }
 

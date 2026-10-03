@@ -5,6 +5,7 @@ namespace BrickServers\GoogleWorkspace\Tests;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
+use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
@@ -51,7 +52,7 @@ class ConfigurationTest extends TestCase
         $http = $client->getHttpClient();
         $this->assertSame(3.0, $http->getConfig('connect_timeout'));
         $this->assertSame(20.0, $http->getConfig('timeout'));
-        $this->assertSame('https://www.googleapis.com', rtrim((string)$http->getConfig('base_uri'), '/'));
+        $this->assertSame('https://www.googleapis.com', rtrim((string) $http->getConfig('base_uri'), '/'));
     }
 
     public function test_contracts_resolve_to_the_shared_repositories()
@@ -59,12 +60,12 @@ class ConfigurationTest extends TestCase
         $this->assertSame(app(UsersRepository::class), app(UsersRepositoryContract::class));
         $this->assertInstanceOf(GroupsRepositoryContract::class, app('google-workspace')->groups());
         $this->assertInstanceOf(BatchOperations::class, app('google-workspace')->batch());
-        $this->assertSame(app('google-workspace'), app(\BrickServers\GoogleWorkspace\GoogleWorkspace::class));
+        $this->assertSame(app('google-workspace'), app(GoogleWorkspace::class));
     }
 
     public function test_facade_alias_declared_in_composer_json_exists()
     {
-        $aliases = json_decode(file_get_contents(__DIR__ . '/../composer.json'), true)['extra']['laravel']['aliases'];
+        $aliases = json_decode(file_get_contents(__DIR__.'/../composer.json'), true)['extra']['laravel']['aliases'];
 
         foreach ($aliases as $class) {
             $this->assertTrue(class_exists($class), "{$class} does not exist");

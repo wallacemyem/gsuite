@@ -31,7 +31,7 @@ class BatchOperations
         private readonly ?GoogleServicesFactory $services = null,
         ?LoggerInterface $logger = null,
     ) {
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?? new NullLogger;
     }
 
     /**
@@ -39,7 +39,7 @@ class BatchOperations
      */
     public function createUsers(array $userDTOs): array
     {
-        if (!$this->services) {
+        if (! $this->services) {
             return $this->each($userDTOs, fn (UserDTO $user) => $this->users->create($user), fn (UserDTO $user) => ['user' => $user->email]);
         }
 
@@ -63,7 +63,7 @@ class BatchOperations
 
                 return $directory->users->insert(new \Google_Service_Directory_User($payload));
             },
-            fn (UserDTO $user, $response) => UserDTO::fromArray((array)$response),
+            fn (UserDTO $user, $response) => UserDTO::fromArray((array) $response),
             fn (UserDTO $user) => ['user' => $user->email],
             'User created',
         );
@@ -82,6 +82,7 @@ class BatchOperations
     {
         return $this->each($emails, function (string $email) {
             $this->users->suspend($email);
+
             return $email;
         }, fn (string $email) => ['email' => $email]);
     }
@@ -91,9 +92,10 @@ class BatchOperations
      */
     public function addGroupMembers(string $groupEmail, array $memberEmails): array
     {
-        if (!$this->services) {
+        if (! $this->services) {
             return $this->each($memberEmails, function (string $email) use ($groupEmail) {
                 $this->groups->addMember($groupEmail, $email);
+
                 return $email;
             }, fn (string $email) => ['email' => $email]);
         }
@@ -116,9 +118,10 @@ class BatchOperations
      */
     public function removeGroupMembers(string $groupEmail, array $memberEmails): array
     {
-        if (!$this->services) {
+        if (! $this->services) {
             return $this->each($memberEmails, function (string $email) use ($groupEmail) {
                 $this->groups->removeMember($groupEmail, $email);
+
                 return $email;
             }, fn (string $email) => ['email' => $email]);
         }
@@ -154,9 +157,9 @@ class BatchOperations
     /**
      * Send one Google batch request per chunk of items.
      *
-     * @param callable $makeRequest builds the (deferred) API request for an item and the Directory service
-     * @param callable $onSuccess maps an item and its response to a success entry
-     * @param callable $describe identifies an item in a failure entry
+     * @param  callable  $makeRequest  builds the (deferred) API request for an item and the Directory service
+     * @param  callable  $onSuccess  maps an item and its response to a success entry
+     * @param  callable  $describe  identifies an item in a failure entry
      */
     private function batch(
         array $items,
@@ -188,6 +191,7 @@ class BatchOperations
                 foreach ($chunk as $item) {
                     $results['failed'][] = $describe($item) + ['error' => $error];
                 }
+
                 continue;
             }
 
@@ -198,7 +202,7 @@ class BatchOperations
                     $results['failed'][] = $describe($item) + [
                         'error' => GoogleWorkspaceException::fromGoogle($response, 'run batched request', 'Batch')->getMessage(),
                     ];
-                } elseif (!array_key_exists("response-item-{$i}", $responses)) {
+                } elseif (! array_key_exists("response-item-{$i}", $responses)) {
                     $results['failed'][] = $describe($item) + ['error' => 'No response returned for this item'];
                 } else {
                     $results['success'][] = $onSuccess($item, $response);
