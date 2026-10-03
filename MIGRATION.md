@@ -1,12 +1,12 @@
 # Migration Guide
 
-## Upgrading from 3.x to 4.0
+## Upgrading from 2.x to 3.0
 
-4.0 fixes several behaviour bugs and tightens security defaults. Most code keeps working, but review these changes:
+3.0 fixes several behaviour bugs and tightens security defaults. Most code keeps working, but review these changes:
 
 ### Requirements
 
-- Laravel 12 or 13. Laravel 10 and 11 are end-of-life and no longer supported; stay on 3.x until you upgrade Laravel.
+- Laravel 12 or 13. Laravel 10 and 11 are end-of-life and no longer supported; stay on 2.x until you upgrade Laravel.
 - PHP 8.2+ (Laravel 13 itself requires PHP 8.3+).
 
 ### `UserDTO` fields are nullable, and `null` means "don't change"
@@ -16,8 +16,8 @@ Previously `changePasswordAtNextLogin` defaulted to `true` and `suspended` to `f
 Now `givenName`, `familyName`, `changePasswordAtNextLogin` and `suspended` default to `null` and are only sent when set:
 
 ```php
-// 3.x: also forced a password reset
-// 4.0: only changes the first name
+// 2.x: also forced a password reset
+// 3.0: only changes the first name
 $workspace->users()->update($email, new UserDTO(email: $email, givenName: 'Johnny'));
 ```
 
@@ -28,7 +28,7 @@ $workspace->users()->update($email, new UserDTO(email: $email, givenName: 'Johnn
 
 ### Exception codes reflect the real error
 
-| Situation | 3.x | 4.0 |
+| Situation | 2.x | 3.0 |
 |-----------|-----|-----|
 | `get()` on anything that fails | 5 (not found) | 5 only for 404; 403 access denied; 429 rate limit; 3 other |
 | Other methods, 404 from Google | 3 | 5 |
@@ -44,11 +44,11 @@ The original Google exception is always available via `$e->getPrevious()`.
 - `makeAdmin()` throws access denied (403) unless `allow_admin_promotion` / `GOOGLE_WORKSPACE_ALLOW_ADMIN_PROMOTION` is `true`.
 - Protected (`undeletable`) users cannot be suspended, and protected users and groups cannot be renamed (code 6).
 - Default scopes are only `admin.directory.user` and `admin.directory.group`. If you published the config, your scopes are unchanged; otherwise add any others you use.
-- Audit logging is on by default (`GOOGLE_WORKSPACE_LOGGING`), to your default channel unless `GOOGLE_WORKSPACE_LOG_CHANNEL` is set. In 3.x the logging settings were ignored and messages always went to the default channel.
+- Audit logging is on by default (`GOOGLE_WORKSPACE_LOGGING`), to your default channel unless `GOOGLE_WORKSPACE_LOG_CHANNEL` is set. In 2.x the logging settings were ignored and messages always went to the default channel.
 
 ### Settings that now take effect
 
-`retry.max_attempts`, `retry.delay_ms`, `timeouts.connect` and `timeouts.read` were ignored in 3.x; they now configure retries and HTTP timeouts. `retry.max_attempts` is the total number of attempts (default 3).
+`retry.max_attempts`, `retry.delay_ms`, `timeouts.connect` and `timeouts.read` were ignored in 2.x; they now configure retries and HTTP timeouts. `retry.max_attempts` is the total number of attempts (default 3).
 
 ### Type hints
 
@@ -62,9 +62,9 @@ The original Google exception is always available via `$e->getPrevious()`.
 
 ---
 
-## Upgrading from v2 (wyattcast44/gsuite) to v3
+## Upgrading from wyattcast44/gsuite
 
-This guide helps you upgrade from the old Google Workspace package to the modern v3 implementation.
+This guide helps you upgrade from the original `wyattcast44/gsuite` package to `brickservers/gsuite`.
 
 ## Table of Contents
 
@@ -381,7 +381,7 @@ do {
 - `GSuite::accounts()` - Use `$workspace->users()`
 - `GSuite::groups()` - Use `$workspace->groups()`
 - Action classes (CreateAccountAction, etc.)
-- Command classes (use artisan commands - coming in v3.1)
+- Command classes
 - Cache-related traits
 - `spatie/laravel-queueable-action` dependency
 
@@ -398,7 +398,7 @@ do {
 
 - PHP requirement: 8.1+ → 8.2+
 - Laravel requirement: 8.0+ → 10.0+
-- Google API Client: ^2.19 → ^2.20 or ^3.0
+- Google API Client: ^2.19
 
 ## Troubleshooting
 

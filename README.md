@@ -492,7 +492,7 @@ For the complete list, use the constants on Google's service classes (e.g. `Goog
 
 ## Migration from Old Package
 
-See [MIGRATION.md](MIGRATION.md) for full upgrade guides, including the breaking changes in 4.0. If you're upgrading from `wyattcast44/gsuite`:
+See [MIGRATION.md](MIGRATION.md) for full upgrade guides, including the breaking changes in 3.0. If you're upgrading from `wyattcast44/gsuite`:
 
 ### Changes Summary
 
