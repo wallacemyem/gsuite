@@ -16,6 +16,12 @@ use BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
 use BrickServers\GoogleWorkspace\Utilities\BatchOperations;
 use Google\Service\Gmail;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Orchestra\Testbench\TestCase;
 
 class ConfigurationTest extends TestCase
@@ -60,6 +66,43 @@ class ConfigurationTest extends TestCase
         $this->assertSame(3.0, $http->getConfig('connect_timeout'));
         $this->assertSame(20.0, $http->getConfig('timeout'));
         $this->assertSame('https://www.googleapis.com', rtrim((string) $http->getConfig('base_uri'), '/'));
+    }
+
+    public function test_network_failures_are_retried_up_to_max_attempts()
+    {
+        config()->set('google-workspace.retry', ['max_attempts' => 3, 'delay_ms' => 0]);
+        $request = new Request('GET', 'https://admin.googleapis.com/admin/directory/v1/users');
+        $connectError = fn () => new ConnectException('Could not resolve host', $request);
+        $timeout = fn () => new RequestException('Operation timed out', $request);
+
+        // Two transport failures, then success: retried transparently
+        $mock = new MockHandler([$connectError(), $timeout(), new Response(200)]);
+        $http = $this->httpClientWith($mock);
+        $this->assertSame(200, $http->send($request)->getStatusCode());
+        $this->assertSame(0, $mock->count());
+
+        // Still failing after max_attempts: the error surfaces
+        $mock = new MockHandler([$connectError(), $connectError(), $connectError(), new Response(200)]);
+        try {
+            $this->httpClientWith($mock)->send($request);
+            $this->fail('Expected the network error after 3 attempts');
+        } catch (ConnectException) {
+            $this->assertSame(1, $mock->count(), 'Exactly 3 attempts should be made');
+        }
+
+        // Error responses are left to Google's retry runner, so they are not retried twice
+        $mock = new MockHandler([new Response(503), new Response(200)]);
+        $this->assertSame(503, $this->httpClientWith($mock)->send($request)->getStatusCode());
+        $this->assertSame(1, $mock->count());
+    }
+
+    private function httpClientWith(MockHandler $mock): ClientInterface
+    {
+        $this->app->forgetInstance(GoogleWorkspaceClient::class);
+        $http = app(GoogleWorkspaceClient::class)->getClient()->getHttpClient();
+        $http->getConfig('handler')->setHandler($mock);
+
+        return $http;
     }
 
     public function test_contracts_resolve_to_the_shared_repositories()
