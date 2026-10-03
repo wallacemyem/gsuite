@@ -10,6 +10,7 @@ use BrickServers\GoogleWorkspace\Api\GmailApi;
 use BrickServers\GoogleWorkspace\Clients\GoogleWorkspaceClient;
 use BrickServers\GoogleWorkspace\Contracts\GroupsRepositoryContract;
 use BrickServers\GoogleWorkspace\Contracts\UsersRepositoryContract;
+use BrickServers\GoogleWorkspace\Facades\GoogleWorkspaceFacade;
 use BrickServers\GoogleWorkspace\GoogleWorkspace;
 use BrickServers\GoogleWorkspace\GoogleWorkspaceServiceProvider;
 use BrickServers\GoogleWorkspace\Repositories\UsersRepository;
@@ -80,6 +81,12 @@ class ConfigurationTest extends TestCase
         $this->assertInstanceOf(DriveApi::class, $workspace->drive());
         $this->assertInstanceOf(Gmail::class, $workspace->gmail()->google());
         $this->assertSame('jane@example.com', $workspace->asUser('jane@example.com')->drive()->google()->getClient()->getConfig('subject'));
+    }
+
+    public function test_facade_proxies_the_workspace()
+    {
+        $this->assertSame(app(UsersRepositoryContract::class), GoogleWorkspaceFacade::users());
+        $this->assertSame('jane@example.com', GoogleWorkspaceFacade::asUser('jane@example.com')->actingAs());
     }
 
     public function test_facade_alias_declared_in_composer_json_exists()

@@ -3,10 +3,9 @@
 [![Latest Version](https://img.shields.io/packagist/v/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
 [![Total Downloads](https://img.shields.io/packagist/dt/brickservers/gsuite.svg?style=flat-square)](https://packagist.org/packages/brickservers/gsuite)
 [![License](https://img.shields.io/packagist/l/brickservers/gsuite.svg?style=flat-square)](LICENSE.md)
+[![Tests](https://github.com/wallacemyem/gsuite/actions/workflows/laravel.yml/badge.svg)](https://github.com/wallacemyem/gsuite/actions/workflows/laravel.yml)
 
-
-
-A modern, fully-featured Laravel package for managing Google Workspace (formerly G Suite) using the latest Google Admin SDK API. Supports user management, group management, directory operations, and more.
+A Laravel package for managing Google Workspace (formerly G Suite). Friendly repositories for users and groups, plus every method of the Admin SDK Directory, Classroom, Calendar, Gmail and Drive APIs, with error handling, audit logging and safety rails built in.
 
 ## Sponsor
 
@@ -33,14 +32,14 @@ Support the development of this package:
 - ✅ **Safety Rails** - Protected accounts and groups, opt-in admin promotion
 - ✅ **Retries & Timeouts** - Configurable backoff for transient failures
 - ✅ **Laravel 12 & 13** - Supports the current Laravel releases
-- ✅ **Extensible** - Easy to extend with custom services
+- ✅ **Mockable** - Repository contracts for dependency injection and testing
 
 ## Requirements
 
 - PHP 8.2 or higher
 - Laravel 12 or 13 (Laravel 13 needs PHP 8.3+)
-- Google Workspace account with admin access
-- Google Cloud Project with Admin SDK API enabled
+- Google Workspace account with super admin access (to set up domain-wide delegation)
+- Google Cloud project with the APIs you use enabled (Admin SDK at minimum)
 
 ## Installation
 
@@ -62,10 +61,10 @@ This will publish the configuration file to `config/google-workspace.php`.
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project
-3. Enable the "Google Admin SDK API"
-4. Create a service account
-5. Download the credentials JSON file
-6. Move the file to `storage/credentials.json` (or configure the path)
+3. Enable the **Admin SDK API**, plus the Classroom, Calendar, Gmail or Drive APIs if you use them
+4. Create a service account and download its JSON key
+5. Move the key to `storage/credentials.json` (or set `GOOGLE_WORKSPACE_CREDENTIALS_PATH`)
+6. In the [Google Admin console](https://admin.google.com), go to **Security → Access and data control → API controls → Domain-wide delegation**, add the service account's client ID, and authorize the scopes from your config (and any you pass to `asUser()`)
 
 ### 2. Configure Environment Variables
 
@@ -104,7 +103,7 @@ Edit `config/google-workspace.php` to customize settings:
 ],
 ```
 
-The default scopes cover the users and groups repositories. Only add more (see the `ApiScope` enum) if you call other APIs through `services()`, and authorize the same scopes for the service account in the Google Admin console.
+The default scopes cover the users and groups repositories. If you use other parts of the API through `directory()`, `classroom()`, `calendar()`, `gmail()` or `drive()`, add the scopes they need and authorize them for the service account in the Google Admin console. Google's service classes define a constant for every scope, e.g. `Google\Service\Directory::ADMIN_DIRECTORY_ORGUNIT` or `Google\Service\Calendar::CALENDAR`.
 
 ## Usage
 
@@ -113,8 +112,12 @@ The default scopes cover the users and groups repositories. Only add more (see t
 ```php
 use BrickServers\GoogleWorkspace\GoogleWorkspace;
 
-// Via facade or service container
+// Via the service container
 $workspace = app('google-workspace');
+
+// Via the facade (auto-registered as GSuite)
+GSuite::users()->get('john.doe@example.com');
+GSuite::asUser('jane@example.com')->gmail()->usersLabels()->listUsersLabels('me');
 
 // Or using dependency injection
 public function __construct(GoogleWorkspace $workspace)
@@ -181,7 +184,6 @@ foreach ($workspace->users()->all() as $user) {
 
 #### Update a User
 
-```php
 Only the fields you set are sent; everything else is left unchanged.
 
 ```php
@@ -382,6 +384,7 @@ $result = $batch->removeGroupMembers('developers@example.com', ['c@example.com']
 $result = $batch->suspendUsers(['a@example.com']); // one call per user, so protected users are checked
 
 // ['success' => [...], 'failed' => [['email' => ..., 'error' => ...], ...]]
+// createUsers() returns UserDTOs in 'success' and uses a 'user' key in 'failed'
 ```
 
 ## Error Handling
@@ -411,7 +414,7 @@ try {
 
 | Code | Meaning |
 |------|---------|
-| 1 | Invalid configuration (e.g. missing subject) |
+| 1 | Invalid configuration (e.g. missing subject, or an API method missing from an outdated `google/apiclient-services`) |
 | 2 | Credentials file not found |
 | 3 | Other API error |
 | 4 | Validation error |
@@ -473,7 +476,7 @@ UserViewType::DOMAIN_PUBLIC   // Public domain view
 
 ### ApiScope
 
-Predefined OAuth scopes for different APIs:
+Common OAuth scopes:
 
 ```php
 ApiScope::DIRECTORY_USER
@@ -484,6 +487,8 @@ ApiScope::GMAIL_COMPOSE
 ApiScope::DRIVE
 // ... and more
 ```
+
+For the complete list, use the constants on Google's service classes (e.g. `Google\Service\Gmail::GMAIL_SETTINGS_SHARING`).
 
 ## Migration from Old Package
 
@@ -538,7 +543,9 @@ composer test-coverage
 
 ## Logging
 
-Every change made through the package (creates, updates, deletes, suspensions, aliases, membership changes, admin promotions) is logged, by default to your application's default log channel. Send it elsewhere with `GOOGLE_WORKSPACE_LOG_CHANNEL`, or turn it off with `GOOGLE_WORKSPACE_LOGGING=false`.
+Every change made through the package is logged: repository actions (creates, updates, deletes, suspensions, aliases, membership changes, admin promotions) and every non-read call through the API wrappers, recorded as `Google Workspace API change` with the method (e.g. `gmail.usersSettings.updateVacation`), its ID arguments and, after `asUser()`, the impersonated account. Request bodies are not logged.
+
+Logs go to your application's default channel. Send them elsewhere with `GOOGLE_WORKSPACE_LOG_CHANNEL`, or turn logging off with `GOOGLE_WORKSPACE_LOGGING=false`.
 
 ## Supported APIs
 
@@ -558,15 +565,15 @@ Users and groups also have the friendlier repositories documented above.
 
 1. **Never commit credentials.json** - Add to `.gitignore`
 2. **Use environment variables** - Store sensitive data in `.env`
-3. **Limit API scopes** - Only request scopes your app needs
+3. **Limit API scopes** - Only request and authorize the scopes your app needs; domain-wide delegation lets the service account act as *any* user for those scopes
 4. **Keep audit logging on** - Every change is logged by default
 5. **Use protected resources** - Add critical accounts/groups to the `undeletable` list (emails, aliases or IDs)
 6. **Leave admin promotion off** - Only enable `allow_admin_promotion` if your app really needs it
-7. **Authorize your own users** - The package acts with full admin rights; check in your app who may trigger each action
+7. **Authorize your own users** - The package acts with full admin rights, and `asUser()` can reach any user's mail, calendar and files; check in your app who may trigger each action
 
 ## Performance Tips
 
-1. **Iterate with `all()`** - Pages are fetched lazily instead of loading everything at once
+1. **Iterate with `all()` / `paginate()`** - Pages are fetched lazily instead of loading everything at once
 2. **Cache results** - Store frequently accessed data
 3. **Use `batch()`** - Bulk creates and membership changes need far fewer HTTP requests
 4. **Tune retries** - Raise `retry.max_attempts` for large jobs that hit rate limits
@@ -593,4 +600,4 @@ For issues, questions, or suggestions, please open an issue on [GitHub](https://
 
 - Modern rewrite by [BrickServers Team](https://brickng.com)
 - Original package by [Wyatt Cast](https://github.com/WyattCast44/gsuite)
-- Built with the [Google Admin SDK](https://developers.google.com/admin-sdk)
+- Built on the [Google APIs Client Library for PHP](https://github.com/googleapis/google-api-php-client)
