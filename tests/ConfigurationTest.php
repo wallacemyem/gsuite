@@ -59,6 +59,7 @@ class ConfigurationTest extends TestCase
         $this->assertSame(app(UsersRepository::class), app(UsersRepositoryContract::class));
         $this->assertInstanceOf(GroupsRepositoryContract::class, app('google-workspace')->groups());
         $this->assertInstanceOf(BatchOperations::class, app('google-workspace')->batch());
+        $this->assertSame(app('google-workspace'), app(\BrickServers\GoogleWorkspace\GoogleWorkspace::class));
     }
 
     public function test_facade_alias_declared_in_composer_json_exists()

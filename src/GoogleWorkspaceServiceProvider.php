@@ -90,6 +90,8 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
             );
         });
 
+        $this->app->alias('google-workspace', GoogleWorkspace::class);
+
         // Backward compatibility alias for old packages
         $this->app->alias('google-workspace', 'gsuite');
     }
@@ -126,6 +128,7 @@ class GoogleWorkspaceServiceProvider extends ServiceProvider
             GroupsRepositoryContract::class,
             BatchOperations::class,
             'google-workspace',
+            GoogleWorkspace::class,
             'gsuite',
         ];
     }
