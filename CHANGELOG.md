@@ -23,7 +23,7 @@ See [MIGRATION.md](MIGRATION.md#upgrading-from-2x-to-30) for upgrade notes.
 - `unsuspend()` actually unsuspends; `suspend()` no longer blanks names or forces a password reset
 - `phone` and `title` are sent to the API
 - Errors map to the real cause (not found, access denied, rate limit, connection) instead of all being "not found" or generic
-- `retry`, `timeouts` and `logging` settings are applied; network failures (DNS, connection, timeouts) are retried, not only error responses
+- `retry`, `timeouts` and `logging` settings are applied; network failures (DNS, connection, timeouts) are retried, not only error responses; POST/PATCH requests are only retried when the connection never opened, so writes are never duplicated
 - A missing admin subject gives a clear configuration error
 - The `GSuite` facade alias points at an existing class
 
